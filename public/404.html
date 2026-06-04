@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <script>
+      // GitHub Pages SPA redirect hack
+      // Encodes the current path/query/hash into a query param and redirects to index.html
+      var location = window.location;
+      var redirect = location.pathname.slice(1) + location.search + location.hash;
+      location.replace(
+        location.protocol + '//' + location.hostname +
+        (location.port ? ':' + location.port : '') +
+        '/calendario-equipos-omni/?p=' + encodeURIComponent(redirect)
+      );
+    </script>
+  </head>
+  <body></body>
+</html>

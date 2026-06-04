@@ -1,10 +1,26 @@
 <!doctype html>
-<html lang="en">
+<html lang="es">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/svg+xml" href="/calendario-equipos-omni/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>calendario-temp</title>
+    <title>Calendario Omnichannel</title>
+    <script>
+      // GitHub Pages SPA: restore route encoded by 404.html
+      (function () {
+        var params = new URLSearchParams(window.location.search);
+        var p = params.get('p');
+        if (p) {
+          var decoded = decodeURIComponent(p);
+          // decoded is like "calendario-equipos-omni/auth-callback?apiKey=..."
+          // strip the repo prefix if present
+          var base = 'calendario-equipos-omni/';
+          if (decoded.startsWith(base)) decoded = decoded.slice(base.length);
+          var newUrl = window.location.pathname.replace(/\/[^/]*$/, '/') + decoded;
+          window.history.replaceState(null, null, newUrl);
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
