@@ -91,7 +91,7 @@ export async function createAbsence(data: {
   }
   if (data.notes) payload.notes = data.notes
   const ref = await addDoc(collection(db, 'absences'), payload)
-  return { id: ref.id, ...payload }
+  return { id: ref.id, ...payload } as Absence
 }
 
 export async function updateAbsence(id: string, data: Partial<Omit<Absence, 'id' | 'createdAt'>>): Promise<void> {
