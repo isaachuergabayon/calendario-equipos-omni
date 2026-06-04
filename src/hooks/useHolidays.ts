@@ -1,9 +1,38 @@
 import { useState, useEffect } from 'react'
 import type { Holiday } from '../types'
 
-// A Coruña local holidays that the Nager.Date API doesn't cover (municipality level)
-const ACORUNA_LOCAL: Array<{ month: number; day: number; name: string }> = [
-  { month: 8, day: 2, name: 'María Pita (A Coruña)' },
+// Anonymous Gregorian algorithm for Easter Sunday
+function easterSunday(year: number): Date {
+  const a = year % 19
+  const b = Math.floor(year / 100)
+  const c = year % 100
+  const d = Math.floor(b / 4)
+  const e = b % 4
+  const f = Math.floor((b + 8) / 25)
+  const g = Math.floor((b - f + 1) / 3)
+  const h = (19 * a + b - d - g + 15) % 30
+  const i = Math.floor(c / 4)
+  const k = c % 4
+  const l = (32 + 2 * e + 2 * i - h - k) % 7
+  const m = Math.floor((a + 11 * h + 22 * l) / 451)
+  const month = Math.floor((h + l - 7 * m + 114) / 31) // 1-indexed
+  const day = ((h + l - 7 * m + 114) % 31) + 1
+  return new Date(year, month - 1, day)
+}
+
+// Martes de Carnaval = Easter Sunday - 47 days
+function martesCarnival(year: number): string {
+  const easter = easterSunday(year)
+  const carnival = new Date(easter)
+  carnival.setDate(carnival.getDate() - 47)
+  const mm = String(carnival.getMonth() + 1).padStart(2, '0')
+  const dd = String(carnival.getDate()).padStart(2, '0')
+  return `${year}-${mm}-${dd}`
+}
+
+// A Coruña fixed local holidays not covered by Nager.Date (municipality level)
+const ACORUNA_FIXED: Array<{ month: number; day: number; name: string }> = [
+  { month: 6, day: 24, name: 'San Juan (A Coruña)' },
 ]
 
 // In-memory cache to avoid re-fetching on re-renders
@@ -32,12 +61,15 @@ async function fetchHolidaysForYear(year: number): Promise<Holiday[]> {
     }
   }
 
-  // Add A Coruña local holidays
-  for (const local of ACORUNA_LOCAL) {
+  // Fixed local holidays
+  for (const local of ACORUNA_FIXED) {
     const mm = String(local.month).padStart(2, '0')
     const dd = String(local.day).padStart(2, '0')
     holidays.push({ date: `${year}-${mm}-${dd}`, name: local.name, type: 'local' })
   }
+
+  // Variable local: Martes de Carnaval (47 days before Easter)
+  holidays.push({ date: martesCarnival(year), name: 'Martes de Carnaval (A Coruña)', type: 'local' })
 
   cache.set(year, holidays)
   return holidays
@@ -77,3 +109,4 @@ export function useHolidays(): UseHolidaysResult {
 
   return { holidays, nationalDates, loading, error }
 }
+
