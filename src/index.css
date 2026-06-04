@@ -594,4 +594,20 @@ input, select, textarea { font: inherit; }
 
 .team-actions { display: flex; gap: 0.5rem; justify-content: flex-end; }
 
+.btn-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  background: none;
+  border: 1.5px solid #e0e0e0;
+  border-radius: 7px;
+  color: #888;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.btn-icon:hover { background: #f0f0f5; color: #333; border-color: #ccc; }
+.btn-icon-danger:hover { background: #fff0f0; color: #e05c5c; border-color: #f0b0b0; }
+.btn-icon:disabled { opacity: 0.4; cursor: not-allowed; }
+
 .empty { color: #aaa; font-style: italic; text-align: center; }

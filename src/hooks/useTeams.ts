@@ -9,7 +9,7 @@ export function useTeams() {
   async function load() {
     setLoading(true)
     const data = await getTeams()
-    setTeams(data)
+    setTeams(data.sort((a, b) => a.name.localeCompare(b.name, 'es')))
     setLoading(false)
   }
 
