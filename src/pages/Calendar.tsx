@@ -61,19 +61,20 @@ export default function CalendarPage() {
     <div className="app-layout">
       <header className="app-header">
         <h1>
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" style={{ verticalAlign: 'middle', marginRight: '0.4rem', marginBottom: '2px' }}>
+            <svg width="24" height="24" viewBox="0 0 24 24" style={{ verticalAlign: 'middle', marginRight: '0.45rem', marginBottom: '2px', display: 'inline-block' }} xmlns="http://www.w3.org/2000/svg">
               {/* Calendar body */}
-              <rect x="3" y="4" width="18" height="17" rx="3" stroke="white" strokeWidth="1.8" fill="none"/>
-              {/* Top bar */}
-              <rect x="3" y="4" width="18" height="5" rx="3" fill="white" fillOpacity="0.2"/>
-              {/* Pin left */}
-              <line x1="8" y1="2" x2="8" y2="6" stroke="white" strokeWidth="1.8" strokeLinecap="round"/>
-              {/* Pin right */}
-              <line x1="16" y1="2" x2="16" y2="6" stroke="white" strokeWidth="1.8" strokeLinecap="round"/>
-              {/* Person head */}
-              <circle cx="12" cy="13" r="2.2" fill="white" fillOpacity="0.9"/>
-              {/* Person body */}
-              <path d="M7.5 19.5c0-2.5 2-4 4.5-4s4.5 1.5 4.5 4" stroke="white" strokeWidth="1.6" strokeLinecap="round" fill="none"/>
+              <rect x="2" y="5" width="20" height="17" rx="3" fill="rgba(255,255,255,0.2)" stroke="white" strokeWidth="1.6"/>
+              {/* Header band */}
+              <rect x="2" y="5" width="20" height="5.5" rx="3" fill="rgba(255,255,255,0.35)"/>
+              {/* Grid dots */}
+              <rect x="7" y="14" width="2" height="2" rx="0.5" fill="white"/>
+              <rect x="11" y="14" width="2" height="2" rx="0.5" fill="white"/>
+              <rect x="15" y="14" width="2" height="2" rx="0.5" fill="white"/>
+              <rect x="7" y="18" width="2" height="2" rx="0.5" fill="white"/>
+              <rect x="11" y="18" width="2" height="2" rx="0.5" fill="white"/>
+              {/* Pins */}
+              <rect x="7.5" y="2" width="2" height="5" rx="1" fill="white"/>
+              <rect x="14.5" y="2" width="2" height="5" rx="1" fill="white"/>
             </svg>
             Calendario Omnichannel
           </h1>
