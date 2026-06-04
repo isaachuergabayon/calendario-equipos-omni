@@ -443,6 +443,39 @@ input, select, textarea { font: inherit; }
 
 .form-error { color: #e05c5c; font-size: 0.85rem; }
 
+/* ── Weekend warning ──────────────────────────────────── */
+.weekend-warning {
+  background: #fffbeb;
+  border: 1.5px solid #f0c419;
+  border-radius: 8px;
+  padding: 0.75rem 0.9rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.weekend-warning-text {
+  font-size: 0.85rem;
+  color: #92650a;
+}
+
+.weekend-confirm {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.83rem;
+  color: #555;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.weekend-confirm input[type="checkbox"] {
+  width: 15px;
+  height: 15px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
 /* ── Teams page ───────────────────────────────────────── */
 .teams-page {
   min-height: 100vh;

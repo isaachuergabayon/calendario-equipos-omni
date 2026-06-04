@@ -10,9 +10,33 @@ interface Props {
   currentUserId: string
   currentTeamId: string
   isOwner: boolean
-  ownerName?: string            // shown in title when viewing someone else's absence
+  ownerName?: string
   onClose: () => void
   onSaved: () => void
+}
+
+// Returns number of weekend days in [startDate, endDate] inclusive
+function countWeekendDays(startDate: string, endDate: string): number {
+  const [sy, sm, sd] = startDate.split('-').map(Number)
+  const [ey, em, ed] = endDate.split('-').map(Number)
+  const start = new Date(sy, sm - 1, sd)
+  const end = new Date(ey, em - 1, ed)
+  let count = 0
+  const cur = new Date(start)
+  while (cur <= end) {
+    const day = cur.getDay()
+    if (day === 0 || day === 6) count++
+    cur.setDate(cur.getDate() + 1)
+  }
+  return count
+}
+
+function totalDays(startDate: string, endDate: string): number {
+  const [sy, sm, sd] = startDate.split('-').map(Number)
+  const [ey, em, ed] = endDate.split('-').map(Number)
+  const start = new Date(sy, sm - 1, sd)
+  const end = new Date(ey, em - 1, ed)
+  return Math.round((end.getTime() - start.getTime()) / 86400000) + 1
 }
 
 export default function AbsenceModal({
@@ -32,8 +56,25 @@ export default function AbsenceModal({
   const [notes, setNotes] = useState(absence?.notes ?? '')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [weekendConfirmed, setWeekendConfirmed] = useState(false)
 
   const isNew = absence === null
+
+  // Compute weekend warning whenever dates or type change
+  const weekendDays = startDate && endDate && endDate >= startDate
+    ? countWeekendDays(startDate, endDate)
+    : 0
+  const total = startDate && endDate && endDate >= startDate
+    ? totalDays(startDate, endDate)
+    : 0
+  const allWeekend = weekendDays > 0 && weekendDays === total
+  const someWeekend = weekendDays > 0 && weekendDays < total
+
+  // For vacaciones: block entirely if any weekend days
+  const vacationWeekendBlock = type === 'vacation' && weekendDays > 0
+  // For other types: warn and require confirmation
+  const needsWeekendConfirm = type !== 'vacation' && someWeekend && !weekendConfirmed
+  const showWeekendWarning = type !== 'vacation' && weekendDays > 0
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault()
@@ -41,6 +82,16 @@ export default function AbsenceModal({
       setError('La fecha de fin no puede ser anterior a la de inicio.')
       return
     }
+    if (vacationWeekendBlock) {
+      setError(
+        allWeekend
+          ? 'Las vacaciones no pueden ser en fin de semana.'
+          : `El rango incluye ${weekendDays} día${weekendDays > 1 ? 's' : ''} de fin de semana. Las vacaciones solo pueden ser en días laborables.`
+      )
+      return
+    }
+    if (needsWeekendConfirm) return // checkbox not checked yet
+
     setLoading(true)
     setError('')
     try {
@@ -79,6 +130,23 @@ export default function AbsenceModal({
     }
   }
 
+  // Reset weekend confirmation when dates or type change
+  function handleTypeChange(v: AbsenceType) {
+    setType(v)
+    setWeekendConfirmed(false)
+    setError('')
+  }
+  function handleStartChange(v: string) {
+    setStartDate(v)
+    setWeekendConfirmed(false)
+    setError('')
+  }
+  function handleEndChange(v: string) {
+    setEndDate(v)
+    setWeekendConfirmed(false)
+    setError('')
+  }
+
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal" onClick={e => e.stopPropagation()}>
@@ -104,7 +172,7 @@ export default function AbsenceModal({
           <form onSubmit={handleSave} className="modal-form">
             <label>
               Tipo
-              <select value={type} onChange={e => setType(e.target.value as AbsenceType)}>
+              <select value={type} onChange={e => handleTypeChange(e.target.value as AbsenceType)}>
                 {(Object.entries(ABSENCE_TYPE_LABELS) as [AbsenceType, string][]).map(([k, v]) => (
                   <option key={k} value={k}>{v}</option>
                 ))}
@@ -116,7 +184,7 @@ export default function AbsenceModal({
               <input
                 type="date"
                 value={startDate}
-                onChange={e => setStartDate(e.target.value)}
+                onChange={e => handleStartChange(e.target.value)}
                 required
               />
             </label>
@@ -127,7 +195,7 @@ export default function AbsenceModal({
                 type="date"
                 value={endDate}
                 min={startDate}
-                onChange={e => setEndDate(e.target.value)}
+                onChange={e => handleEndChange(e.target.value)}
                 required
               />
             </label>
@@ -142,6 +210,32 @@ export default function AbsenceModal({
               />
             </label>
 
+            {/* Vacation weekend block */}
+            {vacationWeekendBlock && (
+              <p className="form-error">
+                {allWeekend
+                  ? 'Las vacaciones no pueden ser en fin de semana.'
+                  : `El rango incluye ${weekendDays} día${weekendDays > 1 ? 's' : ''} de fin de semana. Las vacaciones solo pueden registrarse en días laborables.`}
+              </p>
+            )}
+
+            {/* Other types: warning + confirm checkbox */}
+            {showWeekendWarning && !vacationWeekendBlock && (
+              <div className="weekend-warning">
+                <p className="weekend-warning-text">
+                  ⚠️ El rango incluye {weekendDays} día{weekendDays > 1 ? 's' : ''} de fin de semana.
+                </p>
+                <label className="weekend-confirm">
+                  <input
+                    type="checkbox"
+                    checked={weekendConfirmed}
+                    onChange={e => setWeekendConfirmed(e.target.checked)}
+                  />
+                  Confirmo que quiero registrarlo igualmente
+                </label>
+              </div>
+            )}
+
             {error && <p className="form-error">{error}</p>}
 
             <div className="modal-actions">
@@ -155,7 +249,11 @@ export default function AbsenceModal({
                   Eliminar
                 </button>
               )}
-              <button type="submit" className="btn-primary" disabled={loading}>
+              <button
+                type="submit"
+                className="btn-primary"
+                disabled={loading || vacationWeekendBlock || needsWeekendConfirm}
+              >
                 {loading ? 'Guardando…' : 'Guardar'}
               </button>
             </div>
