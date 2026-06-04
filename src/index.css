@@ -811,3 +811,34 @@ input, select, textarea { font: inherit; }
     display: none;
   }
 }
+
+
+/* ── Festivos ─────────────────────────────────────────────────── */
+
+/* Fondo del día en el calendario según tipo de festivo */
+.rbc-day-national .rbc-day-bg,
+.rbc-month-view .rbc-day-national {
+  background-color: #fee2e2 !important;
+}
+.rbc-day-regional .rbc-day-bg,
+.rbc-month-view .rbc-day-regional {
+  background-color: #fef3c7 !important;
+}
+.rbc-day-local .rbc-day-bg,
+.rbc-month-view .rbc-day-local {
+  background-color: #eff6ff !important;
+}
+
+/* Week view: colorear el slot header del día */
+.rbc-time-view .rbc-day-national .rbc-timeslot-group,
+.rbc-time-view .rbc-day-national {
+  background-color: #fee2e2 !important;
+}
+.rbc-time-view .rbc-day-regional .rbc-timeslot-group,
+.rbc-time-view .rbc-day-regional {
+  background-color: #fef3c7 !important;
+}
+.rbc-time-view .rbc-day-local .rbc-timeslot-group,
+.rbc-time-view .rbc-day-local {
+  background-color: #eff6ff !important;
+}

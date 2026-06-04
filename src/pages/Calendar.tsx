@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext'
 import { useAbsences } from '../hooks/useAbsences'
 import { useTeams } from '../hooks/useTeams'
 import { useUsers } from '../hooks/useUsers'
+import { useHolidays } from '../hooks/useHolidays'
 import CalendarView from '../components/CalendarView'
 import TeamFilter from '../components/TeamFilter'
 import AbsenceModal from '../components/AbsenceModal'
@@ -17,6 +18,7 @@ export default function CalendarPage() {
   const { absences, loading, reload } = useAbsences()
   const { teams } = useTeams()
   const { users, isOnline } = useUsers()
+  const { holidays, nationalDates } = useHolidays()
   const navigate = useNavigate()
 
   const [selectedTeams, setSelectedTeams] = useState<string[]>([])
@@ -129,6 +131,7 @@ export default function CalendarPage() {
             users={users}
             teams={teams}
             selectedTeams={selectedTeams}
+            holidays={holidays}
             onSelectSlot={handleSelectSlot}
             onSelectEvent={handleSelectEvent}
           />
@@ -144,6 +147,7 @@ export default function CalendarPage() {
           currentTeamId={appUser.teamId}
           isOwner={modal.isOwner}
           ownerName={modal.ownerName}
+          nationalHolidays={nationalDates}
           onClose={() => setModal(null)}
           onSaved={() => { setModal(null); reload() }}
         />

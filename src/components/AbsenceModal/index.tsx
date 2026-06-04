@@ -11,6 +11,7 @@ interface Props {
   currentTeamId: string
   isOwner: boolean
   ownerName?: string
+  nationalHolidays: Set<string>
   onClose: () => void
   onSaved: () => void
 }
@@ -39,6 +40,21 @@ function totalDays(startDate: string, endDate: string): number {
   return Math.round((end.getTime() - start.getTime()) / 86400000) + 1
 }
 
+function countNationalHolidayDays(startDate: string, endDate: string, holidays: Set<string>): number {
+  const [sy, sm, sd] = startDate.split('-').map(Number)
+  const [ey, em, ed] = endDate.split('-').map(Number)
+  const start = new Date(sy, sm - 1, sd)
+  const end = new Date(ey, em - 1, ed)
+  let count = 0
+  const cur = new Date(start)
+  while (cur <= end) {
+    const key = `${cur.getFullYear()}-${String(cur.getMonth() + 1).padStart(2, '0')}-${String(cur.getDate()).padStart(2, '0')}`
+    if (holidays.has(key)) count++
+    cur.setDate(cur.getDate() + 1)
+  }
+  return count
+}
+
 export default function AbsenceModal({
   absence,
   defaultStart = '',
@@ -47,6 +63,7 @@ export default function AbsenceModal({
   currentTeamId,
   isOwner,
   ownerName,
+  nationalHolidays,
   onClose,
   onSaved,
 }: Props) {
@@ -72,6 +89,11 @@ export default function AbsenceModal({
 
   // For vacaciones: block entirely if any weekend days
   const vacationWeekendBlock = type === 'vacation' && weekendDays > 0
+  // For vacaciones: block if any national holiday in range
+  const nationalHolidayDays = startDate && endDate && endDate >= startDate
+    ? countNationalHolidayDays(startDate, endDate, nationalHolidays)
+    : 0
+  const vacationHolidayBlock = type === 'vacation' && nationalHolidayDays > 0
   // For other types: warn and require confirmation
   const needsWeekendConfirm = type !== 'vacation' && someWeekend && !weekendConfirmed
   const showWeekendWarning = type !== 'vacation' && weekendDays > 0
@@ -87,6 +109,12 @@ export default function AbsenceModal({
         allWeekend
           ? 'Las vacaciones no pueden ser en fin de semana.'
           : `El rango incluye ${weekendDays} día${weekendDays > 1 ? 's' : ''} de fin de semana. Las vacaciones solo pueden ser en días laborables.`
+      )
+      return
+    }
+    if (vacationHolidayBlock) {
+      setError(
+        `El rango incluye ${nationalHolidayDays} festivo${nationalHolidayDays > 1 ? 's' : ''} nacional${nationalHolidayDays > 1 ? 'es' : ''}. Las vacaciones solo pueden registrarse en días laborables.`
       )
       return
     }
@@ -210,6 +238,13 @@ export default function AbsenceModal({
               />
             </label>
 
+            {/* Vacation national holiday block */}
+            {vacationHolidayBlock && (
+              <p className="form-error">
+                El rango incluye {nationalHolidayDays} festivo{nationalHolidayDays > 1 ? 's' : ''} nacional{nationalHolidayDays > 1 ? 'es' : ''}. Las vacaciones solo pueden registrarse en días laborables.
+              </p>
+            )}
+
             {/* Vacation weekend block */}
             {vacationWeekendBlock && (
               <p className="form-error">
@@ -252,7 +287,7 @@ export default function AbsenceModal({
               <button
                 type="submit"
                 className="btn-primary"
-                disabled={loading || vacationWeekendBlock || needsWeekendConfirm}
+                disabled={loading || vacationWeekendBlock || vacationHolidayBlock || needsWeekendConfirm}
               >
                 {loading ? 'Guardando…' : 'Guardar'}
               </button>

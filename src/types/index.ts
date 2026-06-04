@@ -34,6 +34,12 @@ export const ABSENCE_TYPE_LABELS: Record<AbsenceType, string> = {
   other: 'Otro',
 }
 
+export interface Holiday {
+  date: string // 'YYYY-MM-DD'
+  name: string
+  type: 'national' | 'regional' | 'local'
+}
+
 export const TEAM_COLORS = [
   '#4f86c6',
   '#e07b54',
