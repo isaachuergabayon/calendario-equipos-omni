@@ -188,6 +188,121 @@ input, select, textarea { font: inherit; }
 .filter-name { flex: 1; }
 .filter-count { font-size: 0.75rem; color: #aaa; }
 
+/* ── Team filter — collapsible groups ────────────────── */
+.filter-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  margin-bottom: 0.75rem;
+}
+
+.fiscal-label {
+  font-size: 0.7rem;
+  color: #bbb;
+  letter-spacing: 0.04em;
+}
+
+.team-filter-group {
+  margin-bottom: 0.25rem;
+}
+
+.filter-row {
+  display: flex;
+  align-items: center;
+  border-radius: 8px;
+  border: 1.5px solid transparent;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.filter-row:hover { background: #f0f0f5; }
+.filter-row.active { background: #f0f0f5; border-color: #ddd; }
+
+.filter-row-main {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+  padding: 0.5rem 0.4rem 0.5rem 0.6rem;
+  background: none;
+  border: none;
+  text-align: left;
+  font-size: 0.85rem;
+  color: #444;
+  font-weight: inherit;
+}
+
+.filter-row.active .filter-row-main { font-weight: 600; color: #1a1a2e; }
+
+.filter-expand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: none;
+  border: none;
+  color: #bbb;
+  border-radius: 6px;
+  flex-shrink: 0;
+  margin-right: 2px;
+  transition: color 0.15s, background 0.15s, transform 0.2s;
+}
+
+.filter-expand:hover { color: #666; background: #e8e8f0; }
+.filter-expand.open { transform: rotate(180deg); color: #666; }
+
+.team-stats {
+  margin: 0.15rem 0 0.35rem 0;
+  padding: 0.5rem 0.6rem;
+  background: #f8f8fc;
+  border-radius: 8px;
+  border: 1px solid #ebebf5;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.stats-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  color: #555;
+  padding: 0.1rem 0;
+}
+
+.stats-name {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-right: 0.5rem;
+}
+
+.stats-days {
+  font-weight: 700;
+  color: #1a1a2e;
+  font-size: 0.78rem;
+  white-space: nowrap;
+  background: #e8eaf6;
+  border-radius: 10px;
+  padding: 0.1rem 0.45rem;
+}
+
+.stats-days.zero {
+  color: #bbb;
+  background: #f0f0f5;
+  font-weight: 400;
+}
+
+.stats-empty {
+  font-size: 0.78rem;
+  color: #bbb;
+  font-style: italic;
+  text-align: center;
+  padding: 0.25rem 0;
+}
+
 /* ── Buttons ──────────────────────────────────────────── */
 .btn-primary {
   padding: 0.5rem 1rem;

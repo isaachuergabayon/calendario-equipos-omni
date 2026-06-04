@@ -60,7 +60,23 @@ export default function CalendarPage() {
   return (
     <div className="app-layout">
       <header className="app-header">
-        <h1>Calendario Omnichannel</h1>
+        <h1>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" style={{ verticalAlign: 'middle', marginRight: '0.4rem', marginBottom: '2px' }}>
+              {/* Calendar body */}
+              <rect x="3" y="4" width="18" height="17" rx="3" stroke="white" strokeWidth="1.8" fill="none"/>
+              {/* Top bar */}
+              <rect x="3" y="4" width="18" height="5" rx="3" fill="white" fillOpacity="0.2"/>
+              {/* Pin left */}
+              <line x1="8" y1="2" x2="8" y2="6" stroke="white" strokeWidth="1.8" strokeLinecap="round"/>
+              {/* Pin right */}
+              <line x1="16" y1="2" x2="16" y2="6" stroke="white" strokeWidth="1.8" strokeLinecap="round"/>
+              {/* Person head */}
+              <circle cx="12" cy="13" r="2.2" fill="white" fillOpacity="0.9"/>
+              {/* Person body */}
+              <path d="M7.5 19.5c0-2.5 2-4 4.5-4s4.5 1.5 4.5 4" stroke="white" strokeWidth="1.6" strokeLinecap="round" fill="none"/>
+            </svg>
+            Calendario Omnichannel
+          </h1>
         <div className="header-actions">
           <button className="btn-secondary" onClick={() => navigate('/teams')}>
             Equipos
@@ -76,12 +92,13 @@ export default function CalendarPage() {
 
       <div className="app-body">
         <TeamFilter
-          teams={teams}
-          users={users}
-          selectedTeams={selectedTeams}
-          onToggleTeam={toggleTeam}
-          onShowAll={() => setSelectedTeams([])}
-        />
+            teams={teams}
+            users={users}
+            absences={absences}
+            selectedTeams={selectedTeams}
+            onToggleTeam={toggleTeam}
+            onShowAll={() => setSelectedTeams([])}
+          />
 
         <main className="main-content">
           <CalendarView
