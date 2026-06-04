@@ -611,3 +611,170 @@ input, select, textarea { font: inherit; }
 .btn-icon:disabled { opacity: 0.4; cursor: not-allowed; }
 
 .empty { color: #aaa; font-style: italic; text-align: center; }
+
+/* ── Online presence ──────────────────────────────────── */
+.online-section {
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #eee;
+}
+
+.online-title {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #3dba6f;
+  margin-bottom: 0.5rem;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.85); }
+}
+
+.online-pulse {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #3dba6f;
+  flex-shrink: 0;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.online-user {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.2rem 0.25rem;
+  font-size: 0.82rem;
+  color: #444;
+}
+
+.online-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #3dba6f;
+  flex-shrink: 0;
+}
+
+.online-name { flex: 1; }
+
+.stats-online-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #3dba6f;
+  margin-right: 4px;
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+
+/* ── Hamburger button (mobile only) ──────────────────── */
+.btn-hamburger {
+  display: none;
+  background: none;
+  border: none;
+  padding: 0.3rem;
+  margin-right: 0.5rem;
+  border-radius: 6px;
+}
+.btn-hamburger:hover { background: rgba(255,255,255,0.15); }
+
+.header-left {
+  display: flex;
+  align-items: center;
+}
+
+/* ── Sidebar overlay (mobile) ─────────────────────────── */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  z-index: 99;
+}
+
+/* ── Responsive ───────────────────────────────────────── */
+@media (max-width: 768px) {
+  /* Header */
+  .btn-hamburger { display: flex; }
+
+  .header-title { display: none; }
+
+  .app-header h1 {
+    font-size: 1rem;
+  }
+
+  .header-actions {
+    gap: 0.25rem;
+  }
+
+  .btn-secondary {
+    padding: 0.4rem 0.6rem;
+    font-size: 0.78rem;
+  }
+
+  .btn-ghost {
+    padding: 0.4rem 0.6rem;
+    font-size: 0.78rem;
+  }
+
+  /* Sidebar — hidden by default, slides in */
+  .sidebar-overlay { display: block; }
+
+  .team-filter {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    z-index: 100;
+    transform: translateX(-100%);
+    transition: transform 0.25s ease;
+    box-shadow: 4px 0 20px rgba(0,0,0,0.15);
+    width: 240px;
+  }
+
+  .team-filter.open {
+    transform: translateX(0);
+  }
+
+  /* Calendar */
+  .calendar-wrapper {
+    height: calc(100vh - 110px);
+  }
+
+  .main-content {
+    padding: 0.5rem;
+  }
+
+  /* Modal — full width on mobile */
+  .modal {
+    max-width: 100%;
+    margin: 0;
+    border-radius: 16px 16px 0 0;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+  }
+
+  .modal-overlay {
+    align-items: flex-end;
+    padding: 0;
+  }
+
+  /* Teams page */
+  .teams-content {
+    padding: 1rem;
+  }
+
+  .teams-table th:nth-child(2),
+  .teams-table td:nth-child(2) {
+    display: none;
+  }
+}

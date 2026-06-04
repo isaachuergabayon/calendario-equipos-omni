@@ -2,18 +2,29 @@ import { useEffect, useState } from 'react'
 import { getAllUsers } from '../lib/firestore'
 import type { AppUser } from '../types'
 
+const ONLINE_THRESHOLD = 5 * 60_000   // 5 minutes
+const REFRESH_INTERVAL = 30_000       // refresh users every 30s to update presence
+
 export function useUsers() {
   const [users, setUsers] = useState<AppUser[]>([])
   const [loading, setLoading] = useState(true)
 
   async function load() {
-    setLoading(true)
     const data = await getAllUsers()
     setUsers(data)
     setLoading(false)
   }
 
-  useEffect(() => { load() }, [])
+  useEffect(() => {
+    load()
+    const id = setInterval(load, REFRESH_INTERVAL)
+    return () => clearInterval(id)
+  }, [])
 
-  return { users, loading, reload: load }
+  function isOnline(user: AppUser): boolean {
+    if (!user.lastSeen) return false
+    return Date.now() - user.lastSeen < ONLINE_THRESHOLD
+  }
+
+  return { users, loading, reload: load, isOnline }
 }

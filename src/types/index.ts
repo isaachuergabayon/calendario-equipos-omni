@@ -6,6 +6,7 @@ export interface AppUser {
   email: string
   teamId: string
   color: string
+  lastSeen?: number  // Unix ms timestamp — updated by heartbeat
 }
 
 export interface Team {

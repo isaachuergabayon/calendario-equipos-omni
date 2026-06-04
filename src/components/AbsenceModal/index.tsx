@@ -4,12 +4,13 @@ import { ABSENCE_TYPE_LABELS } from '../../types'
 import type { Absence, AbsenceType } from '../../types'
 
 interface Props {
-  absence: Absence | null       // null = crear nueva
+  absence: Absence | null
   defaultStart?: string
   defaultEnd?: string
   currentUserId: string
   currentTeamId: string
-  isOwner: boolean              // solo el dueño puede editar/borrar
+  isOwner: boolean
+  ownerName?: string            // shown in title when viewing someone else's absence
   onClose: () => void
   onSaved: () => void
 }
@@ -21,6 +22,7 @@ export default function AbsenceModal({
   currentUserId,
   currentTeamId,
   isOwner,
+  ownerName,
   onClose,
   onSaved,
 }: Props) {
@@ -81,7 +83,13 @@ export default function AbsenceModal({
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal" onClick={e => e.stopPropagation()}>
         <div className="modal-header">
-          <h2>{isNew ? 'Nueva ausencia' : 'Editar ausencia'}</h2>
+          <h2>
+            {isNew
+              ? 'Nueva ausencia'
+              : isOwner
+                ? 'Editar ausencia'
+                : `Ausencia de ${ownerName ?? 'compañero'}`}
+          </h2>
           <button className="modal-close" onClick={onClose}>×</button>
         </div>
 

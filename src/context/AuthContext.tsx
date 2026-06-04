@@ -1,8 +1,10 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import { onAuthStateChanged, type User } from 'firebase/auth'
 import { auth } from '../lib/firebase'
-import { getOrCreateUser } from '../lib/firestore'
+import { getOrCreateUser, updateUser } from '../lib/firestore'
 import type { AppUser } from '../types'
+
+const HEARTBEAT_INTERVAL = 60_000 // 60 seconds
 
 interface AuthContextValue {
   firebaseUser: User | null
@@ -30,6 +32,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       user.displayName ?? user.email?.split('@')[0] ?? 'Usuario'
     )
     setAppUser(u)
+    return u
   }
 
   async function refreshAppUser() {
@@ -40,7 +43,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const unsub = onAuthStateChanged(auth, async user => {
       setFirebaseUser(user)
       if (user) {
-        await loadAppUser(user)
+        const u = await loadAppUser(user)
+        // initial presence ping
+        updateUser(u.uid, { lastSeen: Date.now() })
       } else {
         setAppUser(null)
       }
@@ -48,6 +53,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     })
     return unsub
   }, [])
+
+  // Heartbeat: keep lastSeen fresh while the tab is open
+  useEffect(() => {
+    if (!firebaseUser) return
+    const id = setInterval(() => {
+      updateUser(firebaseUser.uid, { lastSeen: Date.now() })
+    }, HEARTBEAT_INTERVAL)
+    return () => clearInterval(id)
+  }, [firebaseUser])
 
   return (
     <AuthContext.Provider value={{ firebaseUser, appUser, loading, refreshAppUser }}>
