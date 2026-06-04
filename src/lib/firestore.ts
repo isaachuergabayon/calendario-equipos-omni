@@ -81,13 +81,28 @@ export async function createAbsence(data: {
   endDate: string
   notes?: string
 }): Promise<Absence> {
-  const payload = { ...data, createdAt: Date.now() }
+  const payload: Record<string, unknown> = {
+    userId: data.userId,
+    teamId: data.teamId,
+    type: data.type,
+    startDate: data.startDate,
+    endDate: data.endDate,
+    createdAt: Date.now(),
+  }
+  if (data.notes) payload.notes = data.notes
   const ref = await addDoc(collection(db, 'absences'), payload)
   return { id: ref.id, ...payload }
 }
 
 export async function updateAbsence(id: string, data: Partial<Omit<Absence, 'id' | 'createdAt'>>): Promise<void> {
-  await updateDoc(doc(db, 'absences', id), data)
+  const update: Record<string, unknown> = {}
+  if (data.type !== undefined) update.type = data.type
+  if (data.startDate !== undefined) update.startDate = data.startDate
+  if (data.endDate !== undefined) update.endDate = data.endDate
+  if (data.teamId !== undefined) update.teamId = data.teamId
+  // notes: if explicitly empty string, remove the field; otherwise set it
+  if (data.notes) update.notes = data.notes
+  await updateDoc(doc(db, 'absences', id), update)
 }
 
 export async function deleteAbsence(id: string): Promise<void> {
