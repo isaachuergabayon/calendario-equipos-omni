@@ -55,7 +55,8 @@ export default function AbsenceModal({
         await updateAbsence(absence!.id, { type, startDate, endDate, notes: notes || undefined })
       }
       onSaved()
-    } catch {
+    } catch (err) {
+      console.error('Error al guardar ausencia:', err)
       setError('Error al guardar. Inténtalo de nuevo.')
     } finally {
       setLoading(false)
@@ -68,7 +69,8 @@ export default function AbsenceModal({
     try {
       await deleteAbsence(absence.id)
       onSaved()
-    } catch {
+    } catch (err) {
+      console.error('Error al eliminar ausencia:', err)
       setError('Error al eliminar.')
     } finally {
       setLoading(false)
