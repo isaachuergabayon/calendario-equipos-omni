@@ -65,6 +65,9 @@ export default function CalendarPage() {
           <button className="btn-secondary" onClick={() => navigate('/teams')}>
             Equipos
           </button>
+          <button className="btn-secondary" onClick={() => navigate('/profile')}>
+            Mi perfil
+          </button>
           <button className="btn-ghost" onClick={handleLogout}>
             Cerrar sesión
           </button>

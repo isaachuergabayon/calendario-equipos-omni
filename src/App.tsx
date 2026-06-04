@@ -4,6 +4,7 @@ import Login from './pages/Login'
 import AuthCallback from './pages/AuthCallback'
 import CalendarPage from './pages/Calendar'
 import Teams from './pages/Teams'
+import Profile from './pages/Profile'
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
   const { firebaseUser, loading } = useAuth()
@@ -32,6 +33,14 @@ export default function App() {
             element={
               <PrivateRoute>
                 <Teams />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              <PrivateRoute>
+                <Profile />
               </PrivateRoute>
             }
           />

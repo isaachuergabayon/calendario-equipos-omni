@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { isSignInWithEmailLink, signInWithEmailLink } from 'firebase/auth'
 import { auth } from '../lib/firebase'
+import { getOrCreateUser } from '../lib/firestore'
 
 export default function AuthCallback() {
   const navigate = useNavigate()
@@ -24,9 +25,20 @@ export default function AuthCallback() {
       }
 
       try {
-        await signInWithEmailLink(auth, email, window.location.href)
+        const cred = await signInWithEmailLink(auth, email, window.location.href)
         window.localStorage.removeItem('emailForSignIn')
-        navigate('/')
+
+        // Check if user has set a real name yet
+        const user = cred.user
+        const appUser = await getOrCreateUser(
+          user.uid,
+          user.email ?? '',
+          user.displayName ?? email.split('@')[0]
+        )
+        const emailPrefix = (user.email ?? '').split('@')[0]
+        const isFirstTime = appUser.displayName === emailPrefix
+
+        navigate(isFirstTime ? '/profile?first=true' : '/')
       } catch (err: any) {
         setError('El enlace ha caducado o ya fue usado. Solicita uno nuevo.')
       }
