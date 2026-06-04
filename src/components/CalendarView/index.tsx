@@ -53,15 +53,18 @@ export default function CalendarView({
     const label = ABSENCE_TYPE_LABELS[absence.type]
     const name = user?.displayName ?? 'Desconocido'
 
-    // end date in big-calendar is exclusive for all-day events
-    const endDate = new Date(absence.endDate)
-    endDate.setDate(endDate.getDate() + 1)
+    // Parse date strings as LOCAL midnight to avoid UTC offset shifting the day
+    const [sy, sm, sd] = absence.startDate.split('-').map(Number)
+    const [ey, em, ed] = absence.endDate.split('-').map(Number)
+    // end date in big-calendar is exclusive for all-day events → +1 day
+    const start = new Date(sy, sm - 1, sd)
+    const end = new Date(ey, em - 1, ed + 1)
 
     return {
       id: absence.id,
       title: `${name} · ${label}`,
-      start: new Date(absence.startDate),
-      end: endDate,
+      start,
+      end,
       color: team?.color ?? user?.color ?? '#888',
       absenceId: absence.id,
       userId: absence.userId,
