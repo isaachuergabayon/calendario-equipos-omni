@@ -60,8 +60,10 @@ export type LocationKey =
   | 'oviedo'
   | 'sevilla'
   | 'badajoz'
+  | 'caceres'
   | 'las_palmas'
   | 'malaga'
+  | 'murcia'
   | 'valencia'
   | 'vitoria'
   | 'warsaw'
@@ -169,6 +171,17 @@ export const LOCATIONS: Record<LocationKey, LocationConfig> = {
     computedLocals: [],
   },
 
+  caceres: {
+    label: 'Cáceres',
+    countryCode: 'ES',
+    communityCode: 'ES-EX',
+    fixedLocals: [
+      { month: 4, day: 23, name: 'San Jorge (Cáceres)' },
+      // TODO: Lunes de la Montaña (lunes siguiente al 1er domingo de mayo) — pending confirmation
+    ],
+    computedLocals: [],
+  },
+
   las_palmas: {
     label: 'Las Palmas de Gran Canaria',
     countryCode: 'ES',
@@ -189,6 +202,19 @@ export const LOCATIONS: Record<LocationKey, LocationConfig> = {
     ],
     computedLocals: [
       year => ({ date: martesCarnival(year), name: 'Martes de Carnaval (Málaga)' }),
+    ],
+  },
+
+  murcia: {
+    label: 'Murcia',
+    countryCode: 'ES',
+    communityCode: 'ES-MC',
+    fixedLocals: [
+      // TODO: locales municipales adicionales — pending confirmation
+    ],
+    computedLocals: [
+      year => ({ date: easterOffset(year, 9),  name: 'Martes de la Feria de Primavera (Murcia)' }),
+      year => ({ date: easterOffset(year, 13), name: 'Entierro de la Sardina (Murcia)' }),
     ],
   },
 
