@@ -87,8 +87,6 @@ export default function ProfilePage() {
           {!isFirstTime && (
             <button
               type="button"
-              className="btn-ghost"
-              style={{ marginTop: '0.5rem', width: '100%' }}
               onClick={() => navigate('/')}
             >
               Cancelar

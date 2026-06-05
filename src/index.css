@@ -60,20 +60,32 @@ input, select, textarea { font: inherit; }
   gap: 0.75rem;
 }
 
-.login-form input {
+.login-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #555;
+}
+
+.login-form input,
+.login-form select {
   padding: 0.75rem 1rem;
   border: 1.5px solid #ddd;
   border-radius: 8px;
   font-size: 1rem;
+  background: #fff;
   transition: border-color 0.2s;
 }
 
-.login-form input:focus {
+.login-form input:focus,
+.login-form select:focus {
   outline: none;
   border-color: #4f86c6;
 }
 
-.login-form button {
+.login-form button[type="submit"] {
   padding: 0.75rem;
   background: #1a1a2e;
   color: #fff;
@@ -84,8 +96,22 @@ input, select, textarea { font: inherit; }
   transition: background 0.2s;
 }
 
-.login-form button:hover:not(:disabled) { background: #2d2d5e; }
-.login-form button:disabled { opacity: 0.6; cursor: not-allowed; }
+.login-form button[type="submit"]:hover:not(:disabled) { background: #2d2d5e; }
+.login-form button[type="submit"]:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.login-form button[type="button"] {
+  padding: 0.65rem;
+  background: transparent;
+  color: #888;
+  border: 1.5px solid #ddd;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: border-color 0.2s, color 0.2s;
+  cursor: pointer;
+}
+
+.login-form button[type="button"]:hover { border-color: #aaa; color: #444; }
 
 .login-success { padding: 1rem 0; }
 .login-icon { font-size: 2.5rem; display: block; margin-bottom: 1rem; }
