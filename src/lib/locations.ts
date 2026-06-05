@@ -61,6 +61,8 @@ export type LocationKey =
   | 'sevilla'
   | 'badajoz'
   | 'las_palmas'
+  | 'valencia'
+  | 'vitoria'
   | 'warsaw'
 
 export interface LocationConfig {
@@ -183,6 +185,26 @@ export const LOCATIONS: Record<LocationKey, LocationConfig> = {
     communityCode: undefined,
     fixedLocals: [
       { month: 8, day: 1, name: 'Alzamiento de Varsovia' },
+    ],
+    computedLocals: [],
+  },
+
+  valencia: {
+    label: 'Valencia',
+    countryCode: 'ES',
+    communityCode: 'ES-VC',
+    fixedLocals: [
+      { month: 3, day: 19, name: 'San José / Las Fallas (Valencia)' },
+    ],
+    computedLocals: [],
+  },
+
+  vitoria: {
+    label: 'Vitoria-Gasteiz',
+    countryCode: 'ES',
+    communityCode: 'ES-PV',
+    fixedLocals: [
+      { month: 8, day: 5, name: 'Virgen Blanca (Vitoria)' },
     ],
     computedLocals: [],
   },
