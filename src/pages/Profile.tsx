@@ -29,7 +29,7 @@ export default function ProfilePage() {
     setError('')
     try {
       const update: Record<string, unknown> = { displayName: name }
-      if (city) update.city = city
+      update.city = city || null
       await updateUser(appUser.uid, update)
       await refreshAppUser()
       navigate('/')

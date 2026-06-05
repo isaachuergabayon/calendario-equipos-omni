@@ -166,6 +166,15 @@ export default function CalendarPage() {
               </button>
             </div>
           )}
+          {(!appUser?.teamId || appUser.teamId === '') && (
+            <div className="city-reminder">
+              <span className="city-reminder-icon">⚠</span>
+              <span>No estás asignado a ningún equipo — ve a <strong>Equipos</strong> para unirte a uno y que tus ausencias aparezcan en el calendario.</span>
+              <button className="city-reminder-link" onClick={() => navigate('/teams')}>
+                Ir a Equipos →
+              </button>
+            </div>
+          )}
           <CalendarView
             absences={absences}
             users={users}
