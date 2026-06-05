@@ -839,6 +839,41 @@ input, select, textarea { font: inherit; }
 }
 
 
+/* ── Recordatorio ciudad ──────────────────────────────────────── */
+
+.city-reminder {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: #fffbeb;
+  border: 1px solid #fcd34d;
+  border-radius: 8px;
+  padding: 0.55rem 0.9rem;
+  font-size: 0.82rem;
+  color: #92400e;
+  margin-bottom: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.city-reminder-icon {
+  font-style: normal;
+  flex-shrink: 0;
+}
+
+.city-reminder-link {
+  background: none;
+  border: none;
+  padding: 0;
+  color: #b45309;
+  font-weight: 600;
+  font-size: 0.82rem;
+  cursor: pointer;
+  text-decoration: underline;
+  white-space: nowrap;
+}
+
+.city-reminder-link:hover { color: #92400e; }
+
 /* ── Festivos ─────────────────────────────────────────────────── */
 
 /* Fondo del día en el calendario según tipo de festivo */

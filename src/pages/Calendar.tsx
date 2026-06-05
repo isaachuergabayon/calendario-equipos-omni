@@ -157,6 +157,15 @@ export default function CalendarPage() {
         />
 
         <main className="main-content">
+          {!appUser?.city && (
+            <div className="city-reminder">
+              <span className="city-reminder-icon">⚠</span>
+              <span>No tienes ciudad de trabajo configurada — no se mostrarán tus festivos locales.</span>
+              <button className="city-reminder-link" onClick={() => navigate('/profile')}>
+                Ir a Mi perfil →
+              </button>
+            </div>
+          )}
           <CalendarView
             absences={absences}
             users={users}
