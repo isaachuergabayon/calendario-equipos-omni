@@ -61,6 +61,7 @@ export type LocationKey =
   | 'sevilla'
   | 'badajoz'
   | 'las_palmas'
+  | 'malaga'
   | 'valencia'
   | 'vitoria'
   | 'warsaw'
@@ -177,6 +178,18 @@ export const LOCATIONS: Record<LocationKey, LocationConfig> = {
       // TODO: 2 locales municipales — pending confirmation
     ],
     computedLocals: [],
+  },
+
+  malaga: {
+    label: 'Málaga',
+    countryCode: 'ES',
+    communityCode: 'ES-AN',
+    fixedLocals: [
+      { month: 2, day: 19, name: 'Toma de Málaga' },
+    ],
+    computedLocals: [
+      year => ({ date: martesCarnival(year), name: 'Martes de Carnaval (Málaga)' }),
+    ],
   },
 
   warsaw: {
