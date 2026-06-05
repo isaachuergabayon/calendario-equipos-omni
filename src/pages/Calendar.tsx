@@ -1,10 +1,11 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { format } from 'date-fns'
 import { useAuth } from '../context/AuthContext'
 import { useAbsences } from '../hooks/useAbsences'
 import { useTeams } from '../hooks/useTeams'
 import { useUsers } from '../hooks/useUsers'
 import { useHolidays } from '../hooks/useHolidays'
+import { LOCATIONS, type LocationKey } from '../lib/locations'
 import CalendarView from '../components/CalendarView'
 import TeamFilter from '../components/TeamFilter'
 import AbsenceModal from '../components/AbsenceModal'
@@ -18,7 +19,6 @@ export default function CalendarPage() {
   const { absences, loading, reload } = useAbsences()
   const { teams } = useTeams()
   const { users, isOnline } = useUsers()
-  const { holidays, nationalDates } = useHolidays()
   const navigate = useNavigate()
 
   const [selectedTeams, setSelectedTeams] = useState<string[]>([])
@@ -30,6 +30,37 @@ export default function CalendarPage() {
     isOwner: boolean
     ownerName?: string
   } | null>(null)
+
+  // Cities of users currently visible in the calendar
+  const activeCities = useMemo<LocationKey[]>(() => {
+    const visibleUsers = selectedTeams.length > 0
+      ? users.filter(u => selectedTeams.includes(u.teamId))
+      : users
+    const cities = new Set<LocationKey>(
+      visibleUsers
+        .map(u => u.city)
+        .filter((c): c is LocationKey => !!c && c in LOCATIONS)
+    )
+    // Always include the current user's city so national holiday blocking works
+    if (appUser?.city && appUser.city in LOCATIONS) {
+      cities.add(appUser.city as LocationKey)
+    }
+    return [...cities]
+  }, [users, selectedTeams, appUser?.city])
+
+  const { holidays } = useHolidays(activeCities)
+
+  // National holidays for the current user's country — used to block vacation creation
+  const nationalDates = useMemo(() => {
+    const userCountry = appUser?.city && appUser.city in LOCATIONS
+      ? LOCATIONS[appUser.city as LocationKey].countryCode
+      : 'ES'
+    return new Set(
+      holidays
+        .filter(h => h.type === 'national' && h.countryCode === userCountry)
+        .map(h => h.date)
+    )
+  }, [holidays, appUser?.city])
 
   function toggleTeam(teamId: string) {
     setSelectedTeams(prev =>

@@ -1,99 +1,108 @@
 import { useState, useEffect } from 'react'
 import type { Holiday } from '../types'
+import { LOCATIONS, type LocationKey } from '../lib/locations'
 
-// Anonymous Gregorian algorithm for Easter Sunday
-function easterSunday(year: number): Date {
-  const a = year % 19
-  const b = Math.floor(year / 100)
-  const c = year % 100
-  const d = Math.floor(b / 4)
-  const e = b % 4
-  const f = Math.floor((b + 8) / 25)
-  const g = Math.floor((b - f + 1) / 3)
-  const h = (19 * a + b - d - g + 15) % 30
-  const i = Math.floor(c / 4)
-  const k = c % 4
-  const l = (32 + 2 * e + 2 * i - h - k) % 7
-  const m = Math.floor((a + 11 * h + 22 * l) / 451)
-  const month = Math.floor((h + l - 7 * m + 114) / 31) // 1-indexed
-  const day = ((h + l - 7 * m + 114) % 31) + 1
-  return new Date(year, month - 1, day)
+interface RawHoliday {
+  date: string
+  localName: string
+  global: boolean
+  counties: string[] | null
 }
 
-// Martes de Carnaval = Easter Sunday - 47 days
-function martesCarnival(year: number): string {
-  const easter = easterSunday(year)
-  const carnival = new Date(easter)
-  carnival.setDate(carnival.getDate() - 47)
-  const mm = String(carnival.getMonth() + 1).padStart(2, '0')
-  const dd = String(carnival.getDate()).padStart(2, '0')
-  return `${year}-${mm}-${dd}`
+// Cache keyed by `${countryCode}-${year}`
+const rawCache = new Map<string, RawHoliday[]>()
+
+async function fetchRaw(countryCode: string, year: number): Promise<RawHoliday[]> {
+  const key = `${countryCode}-${year}`
+  if (rawCache.has(key)) return rawCache.get(key)!
+  const res = await fetch(`https://date.nager.at/api/v3/PublicHolidays/${year}/${countryCode}`)
+  if (!res.ok) throw new Error(`Error fetching ${countryCode} holidays for ${year}`)
+  const data: RawHoliday[] = await res.json()
+  rawCache.set(key, data)
+  return data
 }
 
-// A Coruña fixed local holidays not covered by Nager.Date (municipality level)
-const ACORUNA_FIXED: Array<{ month: number; day: number; name: string }> = [
-  { month: 6, day: 24, name: 'San Juan (A Coruña)' },
-]
+function buildHolidays(
+  activeCities: LocationKey[],
+  years: number[],
+): Holiday[] {
+  const result: Holiday[] = []
+  const seen = new Set<string>()
 
-// In-memory cache to avoid re-fetching on re-renders
-const cache = new Map<number, Holiday[]>()
-
-async function fetchHolidaysForYear(year: number): Promise<Holiday[]> {
-  if (cache.has(year)) return cache.get(year)!
-
-  const res = await fetch(`https://date.nager.at/api/v3/PublicHolidays/${year}/ES`)
-  if (!res.ok) throw new Error(`Error fetching holidays for ${year}`)
-
-  const data: Array<{
-    date: string
-    localName: string
-    global: boolean
-    counties: string[] | null
-  }> = await res.json()
-
-  const holidays: Holiday[] = []
-
-  for (const item of data) {
-    if (item.global) {
-      holidays.push({ date: item.date, name: item.localName, type: 'national' })
-    } else if (item.counties?.includes('ES-GA')) {
-      holidays.push({ date: item.date, name: item.localName, type: 'regional' })
+  const add = (h: Holiday) => {
+    const key = `${h.date}||${h.name}||${h.countryCode}`
+    if (!seen.has(key)) {
+      seen.add(key)
+      result.push(h)
     }
   }
 
-  // Fixed local holidays
-  for (const local of ACORUNA_FIXED) {
-    const mm = String(local.month).padStart(2, '0')
-    const dd = String(local.day).padStart(2, '0')
-    holidays.push({ date: `${year}-${mm}-${dd}`, name: local.name, type: 'local' })
+  const activeCountries = new Set(activeCities.map(c => LOCATIONS[c].countryCode))
+  const activeCommunities = new Set(
+    activeCities.map(c => LOCATIONS[c].communityCode).filter(Boolean) as string[]
+  )
+
+  // Nationals + regionals from API
+  for (const countryCode of activeCountries) {
+    for (const year of years) {
+      const raw = rawCache.get(`${countryCode}-${year}`) ?? []
+      for (const item of raw) {
+        if (item.global) {
+          add({ date: item.date, name: item.localName, type: 'national', countryCode })
+        } else if (item.counties?.some(c => activeCommunities.has(c))) {
+          add({ date: item.date, name: item.localName, type: 'regional', countryCode })
+        }
+      }
+    }
   }
 
-  // Variable local: Martes de Carnaval (47 days before Easter)
-  holidays.push({ date: martesCarnival(year), name: 'Martes de Carnaval (A Coruña)', type: 'local' })
+  // Hardcoded locals per city
+  for (const cityKey of activeCities) {
+    const cfg = LOCATIONS[cityKey]
+    for (const year of years) {
+      for (const loc of cfg.fixedLocals) {
+        const mm = String(loc.month).padStart(2, '0')
+        const dd = String(loc.day).padStart(2, '0')
+        add({ date: `${year}-${mm}-${dd}`, name: loc.name, type: 'local', countryCode: cfg.countryCode })
+      }
+      for (const compute of cfg.computedLocals) {
+        const { date, name } = compute(year)
+        add({ date, name, type: 'local', countryCode: cfg.countryCode })
+      }
+    }
+  }
 
-  cache.set(year, holidays)
-  return holidays
+  return result
 }
 
 interface UseHolidaysResult {
   holidays: Holiday[]
-  nationalDates: Set<string>
   loading: boolean
   error: string | null
 }
 
-export function useHolidays(): UseHolidaysResult {
+export function useHolidays(activeCities: LocationKey[]): UseHolidaysResult {
   const [holidays, setHolidays] = useState<Holiday[]>([])
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
+  // Stable key to detect real changes in the city list
+  const citiesKey = [...activeCities].sort().join(',')
+
   useEffect(() => {
+    if (activeCities.length === 0) {
+      setHolidays([])
+      return
+    }
+
     const currentYear = new Date().getFullYear()
     const years = [currentYear, currentYear + 1]
+    const countries = [...new Set(activeCities.map(c => LOCATIONS[c].countryCode))]
 
-    Promise.all(years.map(fetchHolidaysForYear))
-      .then(results => {
-        setHolidays(results.flat())
+    setLoading(true)
+    Promise.all(years.flatMap(year => countries.map(cc => fetchRaw(cc, year))))
+      .then(() => {
+        setHolidays(buildHolidays(activeCities, years))
         setLoading(false)
       })
       .catch(err => {
@@ -101,12 +110,7 @@ export function useHolidays(): UseHolidaysResult {
         setError('No se pudieron cargar los festivos.')
         setLoading(false)
       })
-  }, [])
+  }, [citiesKey]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  const nationalDates = new Set(
-    holidays.filter(h => h.type === 'national').map(h => h.date)
-  )
-
-  return { holidays, nationalDates, loading, error }
+  return { holidays, loading, error }
 }
-

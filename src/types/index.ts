@@ -7,6 +7,7 @@ export interface AppUser {
   teamId: string
   color: string
   lastSeen?: number  // Unix ms timestamp — updated by heartbeat
+  city?: string      // LocationKey — user's work city for holiday display
 }
 
 export interface Team {
@@ -35,9 +36,10 @@ export const ABSENCE_TYPE_LABELS: Record<AbsenceType, string> = {
 }
 
 export interface Holiday {
-  date: string // 'YYYY-MM-DD'
+  date: string      // 'YYYY-MM-DD'
   name: string
   type: 'national' | 'regional' | 'local'
+  countryCode: string // 'ES', 'PL', …
 }
 
 export const TEAM_COLORS = [

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { updateUser } from '../lib/firestore'
+import { LOCATION_OPTIONS, type LocationKey } from '../lib/locations'
 
 export default function ProfilePage() {
   const { appUser, refreshAppUser } = useAuth()
@@ -10,6 +11,9 @@ export default function ProfilePage() {
   const isFirstTime = searchParams.get('first') === 'true'
 
   const [displayName, setDisplayName] = useState(appUser?.displayName ?? '')
+  const [city, setCity] = useState<LocationKey | ''>(
+    (appUser?.city as LocationKey | undefined) ?? ''
+  )
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
@@ -24,7 +28,9 @@ export default function ProfilePage() {
     setLoading(true)
     setError('')
     try {
-      await updateUser(appUser.uid, { displayName: name })
+      const update: Record<string, unknown> = { displayName: name }
+      if (city) update.city = city
+      await updateUser(appUser.uid, update)
       await refreshAppUser()
       navigate('/')
     } catch (err) {
@@ -60,6 +66,16 @@ export default function ProfilePage() {
               autoFocus
               required
             />
+          </label>
+
+          <label>
+            Tu ciudad de trabajo
+            <select value={city} onChange={e => setCity(e.target.value as LocationKey | '')}>
+              <option value="">— Sin especificar —</option>
+              {LOCATION_OPTIONS.map(opt => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
+              ))}
+            </select>
           </label>
 
           {error && <p className="login-error">{error}</p>}
