@@ -1,13 +1,15 @@
 {
   "name": "calendario-temp",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.1.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "release": "GH_TOKEN=$ITX_GITHUB_PAT release-it",
+    "release:dry": "GH_TOKEN=$ITX_GITHUB_PAT release-it --dry-run"
   },
   "dependencies": {
     "date-fns": "^4.4.0",
@@ -19,6 +21,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@release-it/conventional-changelog": "^11.0.1",
     "@types/node": "^24.12.3",
     "@types/react": "^19.2.14",
     "@types/react-big-calendar": "^1.16.3",
@@ -28,6 +31,7 @@
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.2",
     "globals": "^17.6.0",
+    "release-it": "^20.2.0",
     "typescript": "~6.0.2",
     "typescript-eslint": "^8.59.2",
     "vite": "^5.4.21"

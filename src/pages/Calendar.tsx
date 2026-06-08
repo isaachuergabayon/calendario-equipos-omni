@@ -159,6 +159,7 @@ export default function CalendarPage() {
               </g>
             </svg>
             <span className="header-title">Calendario Omnichannel</span>
+            <span className="header-version">v{__APP_VERSION__}</span>
           </h1>
         </div>
         <div className="header-actions">
