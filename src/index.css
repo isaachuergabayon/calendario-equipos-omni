@@ -468,6 +468,7 @@ input, select, textarea { font: inherit; }
 }
 
 .form-error { color: #e05c5c; font-size: 0.85rem; }
+.form-info  { color: #1d6fa4; font-size: 0.85rem; }
 
 /* ── Weekend warning ──────────────────────────────────── */
 .weekend-warning {
@@ -890,6 +891,12 @@ input, select, textarea { font: inherit; }
   background-color: #eff6ff !important;
 }
 
+/* Fines de semana: fondo gris suave (sin !important para que festivos tengan prioridad) */
+.rbc-day-weekend .rbc-day-bg,
+.rbc-month-view .rbc-day-weekend {
+  background-color: #f0f2f5;
+}
+
 /* Week view: colorear el slot header del día */
 .rbc-time-view .rbc-day-national .rbc-timeslot-group,
 .rbc-time-view .rbc-day-national {
@@ -902,4 +909,8 @@ input, select, textarea { font: inherit; }
 .rbc-time-view .rbc-day-local .rbc-timeslot-group,
 .rbc-time-view .rbc-day-local {
   background-color: #eff6ff !important;
+}
+.rbc-time-view .rbc-day-weekend .rbc-timeslot-group,
+.rbc-time-view .rbc-day-weekend {
+  background-color: #f0f2f5;
 }

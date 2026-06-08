@@ -11,7 +11,8 @@ interface Props {
   currentTeamId: string
   isOwner: boolean
   ownerName?: string
-  nationalHolidays: Set<string>
+  /** Fechas no laborables del usuario (nacionales + regionales + locales). YYYY-MM-DD */
+  nonWorkingHolidays: Set<string>
   onClose: () => void
   onSaved: () => void
 }
@@ -40,7 +41,7 @@ function totalDays(startDate: string, endDate: string): number {
   return Math.round((end.getTime() - start.getTime()) / 86400000) + 1
 }
 
-function countNationalHolidayDays(startDate: string, endDate: string, holidays: Set<string>): number {
+function countHolidayDays(startDate: string, endDate: string, holidays: Set<string>): number {
   const [sy, sm, sd] = startDate.split('-').map(Number)
   const [ey, em, ed] = endDate.split('-').map(Number)
   const start = new Date(sy, sm - 1, sd)
@@ -55,6 +56,23 @@ function countNationalHolidayDays(startDate: string, endDate: string, holidays: 
   return count
 }
 
+// Días laborables: excluye fines de semana y festivos
+function countWorkingDays(startDate: string, endDate: string, holidays: Set<string>): number {
+  const [sy, sm, sd] = startDate.split('-').map(Number)
+  const [ey, em, ed] = endDate.split('-').map(Number)
+  const start = new Date(sy, sm - 1, sd)
+  const end = new Date(ey, em - 1, ed)
+  let count = 0
+  const cur = new Date(start)
+  while (cur <= end) {
+    const day = cur.getDay()
+    const key = `${cur.getFullYear()}-${String(cur.getMonth() + 1).padStart(2, '0')}-${String(cur.getDate()).padStart(2, '0')}`
+    if (day !== 0 && day !== 6 && !holidays.has(key)) count++
+    cur.setDate(cur.getDate() + 1)
+  }
+  return count
+}
+
 export default function AbsenceModal({
   absence,
   defaultStart = '',
@@ -63,7 +81,7 @@ export default function AbsenceModal({
   currentTeamId,
   isOwner,
   ownerName,
-  nationalHolidays,
+  nonWorkingHolidays,
   onClose,
   onSaved,
 }: Props) {
@@ -77,26 +95,29 @@ export default function AbsenceModal({
 
   const isNew = absence === null
 
-  // Compute weekend warning whenever dates or type change
-  const weekendDays = startDate && endDate && endDate >= startDate
-    ? countWeekendDays(startDate, endDate)
-    : 0
-  const total = startDate && endDate && endDate >= startDate
-    ? totalDays(startDate, endDate)
-    : 0
-  const allWeekend = weekendDays > 0 && weekendDays === total
-  const someWeekend = weekendDays > 0 && weekendDays < total
+  // Métricas del rango seleccionado
+  const rangeValid = !!(startDate && endDate && endDate >= startDate)
+  const weekendDays  = rangeValid ? countWeekendDays(startDate, endDate) : 0
+  const total        = rangeValid ? totalDays(startDate, endDate) : 0
+  const someWeekend  = weekendDays > 0 && weekendDays < total
 
-  // For vacaciones: block entirely if any weekend days
-  const vacationWeekendBlock = type === 'vacation' && weekendDays > 0
-  // For vacaciones: block if any national holiday in range
-  const nationalHolidayDays = startDate && endDate && endDate >= startDate
-    ? countNationalHolidayDays(startDate, endDate, nationalHolidays)
-    : 0
-  const vacationHolidayBlock = type === 'vacation' && nationalHolidayDays > 0
-  // For other types: warn and require confirmation
+  // Vacaciones: calcular días laborables (excluye fines de semana y todos los festivos)
+  const workingDays = type === 'vacation' && rangeValid
+    ? countWorkingDays(startDate, endDate, nonWorkingHolidays)
+    : null
+  const hasNonWorkingDays = workingDays !== null && workingDays < total
+
+  // Para vacaciones: bloquear solo si no hay ningún día laborable en el rango
+  const vacationNoWorkingDaysBlock = type === 'vacation' && rangeValid && workingDays === 0
+
+  // Para otros tipos: aviso suave + confirmación si hay fines de semana
   const needsWeekendConfirm = type !== 'vacation' && someWeekend && !weekendConfirmed
-  const showWeekendWarning = type !== 'vacation' && weekendDays > 0
+  const showWeekendWarning  = type !== 'vacation' && weekendDays > 0
+
+  // Número de festivos no-laborables en el rango (para mostrar en el desglose)
+  const holidayDays = rangeValid && type === 'vacation'
+    ? countHolidayDays(startDate, endDate, nonWorkingHolidays)
+    : 0
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault()
@@ -104,18 +125,8 @@ export default function AbsenceModal({
       setError('La fecha de fin no puede ser anterior a la de inicio.')
       return
     }
-    if (vacationWeekendBlock) {
-      setError(
-        allWeekend
-          ? 'Las vacaciones no pueden ser en fin de semana.'
-          : `El rango incluye ${weekendDays} día${weekendDays > 1 ? 's' : ''} de fin de semana. Las vacaciones solo pueden ser en días laborables.`
-      )
-      return
-    }
-    if (vacationHolidayBlock) {
-      setError(
-        `El rango incluye ${nationalHolidayDays} festivo${nationalHolidayDays > 1 ? 's' : ''} nacional${nationalHolidayDays > 1 ? 'es' : ''}. Las vacaciones solo pueden registrarse en días laborables.`
-      )
+    if (vacationNoWorkingDaysBlock) {
+      setError('Este período no incluye ningún día laborable.')
       return
     }
     if (needsWeekendConfirm) return // checkbox not checked yet
@@ -238,24 +249,28 @@ export default function AbsenceModal({
               />
             </label>
 
-            {/* Vacation national holiday block */}
-            {vacationHolidayBlock && (
-              <p className="form-error">
-                El rango incluye {nationalHolidayDays} festivo{nationalHolidayDays > 1 ? 's' : ''} nacional{nationalHolidayDays > 1 ? 'es' : ''}. Las vacaciones solo pueden registrarse en días laborables.
+            {/* Vacaciones: info de días laborables cuando hay no-laborables en el rango */}
+            {type === 'vacation' && rangeValid && hasNonWorkingDays && workingDays! > 0 && (
+              <p className="form-info">
+                {workingDays} día{workingDays !== 1 ? 's' : ''} laborable{workingDays !== 1 ? 's' : ''} de {total} en total
+                {weekendDays > 0 && holidayDays > 0
+                  ? ` (${weekendDays} fin${weekendDays !== 1 ? 'es' : ''} de semana y ${holidayDays} festivo${holidayDays !== 1 ? 's' : ''} excluidos)`
+                  : weekendDays > 0
+                  ? ` (${weekendDays} día${weekendDays !== 1 ? 's' : ''} de fin de semana excluido${weekendDays !== 1 ? 's' : ''})`
+                  : ` (${holidayDays} festivo${holidayDays !== 1 ? 's' : ''} excluido${holidayDays !== 1 ? 's' : ''})`
+                }
               </p>
             )}
 
-            {/* Vacation weekend block */}
-            {vacationWeekendBlock && (
+            {/* Vacaciones: bloqueo cuando no hay ningún día laborable */}
+            {vacationNoWorkingDaysBlock && (
               <p className="form-error">
-                {allWeekend
-                  ? 'Las vacaciones no pueden ser en fin de semana.'
-                  : `El rango incluye ${weekendDays} día${weekendDays > 1 ? 's' : ''} de fin de semana. Las vacaciones solo pueden registrarse en días laborables.`}
+                Este período no incluye ningún día laborable.
               </p>
             )}
 
-            {/* Other types: warning + confirm checkbox */}
-            {showWeekendWarning && !vacationWeekendBlock && (
+            {/* Otros tipos: aviso suave + confirmación si hay fines de semana */}
+            {showWeekendWarning && (
               <div className="weekend-warning">
                 <p className="weekend-warning-text">
                   ⚠️ El rango incluye {weekendDays} día{weekendDays > 1 ? 's' : ''} de fin de semana.
@@ -287,7 +302,7 @@ export default function AbsenceModal({
               <button
                 type="submit"
                 className="btn-primary"
-                disabled={loading || vacationWeekendBlock || vacationHolidayBlock || needsWeekendConfirm}
+                disabled={loading || vacationNoWorkingDaysBlock || needsWeekendConfirm}
               >
                 {loading ? 'Guardando…' : 'Guardar'}
               </button>

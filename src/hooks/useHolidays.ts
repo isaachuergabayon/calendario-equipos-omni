@@ -22,7 +22,7 @@ async function fetchRaw(countryCode: string, year: number): Promise<RawHoliday[]
   return data
 }
 
-function buildHolidays(
+export function buildHolidays(
   activeCities: LocationKey[],
   years: number[],
 ): Holiday[] {

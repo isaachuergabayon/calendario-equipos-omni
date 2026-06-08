@@ -124,8 +124,12 @@ export default function CalendarView({
         dayPropGetter={date => {
           const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
           const type = holidayMap.get(key)
-          if (type) return { className: `rbc-day-${type}` }
-          return {}
+          const isWeekend = date.getDay() === 0 || date.getDay() === 6
+          const classes = [
+            type && `rbc-day-${type}`,
+            isWeekend && 'rbc-day-weekend',
+          ].filter(Boolean) as string[]
+          return classes.length ? { className: classes.join(' ') } : {}
         }}
         eventPropGetter={ev => {
           if (ev.isHoliday) {

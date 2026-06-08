@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext'
 import { useAbsences } from '../hooks/useAbsences'
 import { useTeams } from '../hooks/useTeams'
 import { useUsers } from '../hooks/useUsers'
-import { useHolidays } from '../hooks/useHolidays'
+import { useHolidays, buildHolidays } from '../hooks/useHolidays'
 import { LOCATIONS, type LocationKey } from '../lib/locations'
 import CalendarView from '../components/CalendarView'
 import TeamFilter from '../components/TeamFilter'
@@ -50,17 +50,24 @@ export default function CalendarPage() {
 
   const { holidays } = useHolidays(activeCities)
 
-  // National holidays for the current user's country — used to block vacation creation
-  const nationalDates = useMemo(() => {
-    const userCountry = appUser?.city && appUser.city in LOCATIONS
-      ? LOCATIONS[appUser.city as LocationKey].countryCode
-      : 'ES'
+  // Festivos del usuario actual (nacionales + regionales + locales de su ciudad)
+  // Usados para calcular días laborables en vacaciones y bloquear si no hay ninguno
+  const userHolidayDates = useMemo(() => {
+    if (!appUser?.city || !(appUser.city in LOCATIONS)) {
+      // Sin ciudad configurada: solo nacionales ES como fallback
+      return new Set(
+        holidays
+          .filter(h => h.type === 'national' && h.countryCode === 'ES')
+          .map(h => h.date)
+      )
+    }
+    const userCity = appUser.city as LocationKey
+    const currentYear = new Date().getFullYear()
+    // buildHolidays usa rawCache ya poblado por useHolidays, no hace fetch adicional
     return new Set(
-      holidays
-        .filter(h => h.type === 'national' && h.countryCode === userCountry)
-        .map(h => h.date)
+      buildHolidays([userCity], [currentYear, currentYear + 1]).map(h => h.date)
     )
-  }, [holidays, appUser?.city])
+  }, [holidays, appUser])
 
   function toggleTeam(teamId: string) {
     setSelectedTeams(prev =>
@@ -196,7 +203,7 @@ export default function CalendarPage() {
           currentTeamId={appUser.teamId}
           isOwner={modal.isOwner}
           ownerName={modal.ownerName}
-          nationalHolidays={nationalDates}
+          nonWorkingHolidays={userHolidayDates}
           onClose={() => setModal(null)}
           onSaved={() => { setModal(null); reload() }}
         />
