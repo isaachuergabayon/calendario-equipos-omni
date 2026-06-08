@@ -11,6 +11,7 @@ interface Props {
   isOnline: (user: AppUser) => boolean
   sidebarOpen: boolean
   onCloseSidebar: () => void
+  userHolidayMaps: Map<string, Set<string>>
 }
 
 function getFiscalYear() {
@@ -33,9 +34,27 @@ function countDays(startDate: string, endDate: string): number {
   return Math.round((end.getTime() - start.getTime()) / 86400000) + 1
 }
 
+// Días laborables: excluye fines de semana y festivos del usuario
+function countWorkingDays(startDate: string, endDate: string, holidays: Set<string>): number {
+  const [sy, sm, sd] = startDate.split('-').map(Number)
+  const [ey, em, ed] = endDate.split('-').map(Number)
+  const start = new Date(sy, sm - 1, sd)
+  const end = new Date(ey, em - 1, ed)
+  let count = 0
+  const cur = new Date(start)
+  while (cur <= end) {
+    const day = cur.getDay()
+    const key = `${cur.getFullYear()}-${String(cur.getMonth() + 1).padStart(2, '0')}-${String(cur.getDate()).padStart(2, '0')}`
+    if (day !== 0 && day !== 6 && !holidays.has(key)) count++
+    cur.setDate(cur.getDate() + 1)
+  }
+  return count
+}
+
 export default function TeamFilter({
   teams, users, absences, selectedTeams,
   onToggleTeam, onShowAll, isOnline, sidebarOpen, onCloseSidebar,
+  userHolidayMaps,
 }: Props) {
   const allSelected = selectedTeams.length === 0
   const [expanded, setExpanded] = useState<string[]>([])
@@ -55,6 +74,11 @@ export default function TeamFilter({
       .reduce((sum, a) => {
         const start = a.startDate < fiscal.start ? fiscal.start : a.startDate
         const end = a.endDate > fiscal.end ? fiscal.end : a.endDate
+        if (a.type === 'vacation') {
+          // Vacaciones: contar solo días laborables (excluir fines de semana y festivos del usuario)
+          const userHols = userHolidayMaps.get(userId) ?? new Set<string>()
+          return sum + countWorkingDays(start, end, userHols)
+        }
         return sum + countDays(start, end)
       }, 0)
   }

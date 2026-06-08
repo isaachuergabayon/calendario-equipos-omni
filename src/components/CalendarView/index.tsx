@@ -31,6 +31,7 @@ interface Props {
   teams: Team[]
   selectedTeams: string[]
   holidays: Holiday[]
+  userHolidayMaps: Map<string, Set<string>>
   onSelectSlot: (start: Date, end: Date) => void
   onSelectEvent: (absenceId: string, userId: string) => void
 }
@@ -90,6 +91,7 @@ export default function CalendarView({
   teams,
   selectedTeams,
   holidays,
+  userHolidayMaps,
   onSelectSlot,
   onSelectEvent,
 }: Props) {
@@ -106,9 +108,6 @@ export default function CalendarView({
     }
   }
 
-  // Set de todas las fechas festivas (para dividir eventos de vacaciones)
-  const holidayDateSet = new Set(holidayMap.keys())
-
   const filtered = selectedTeams.length > 0
     ? absences.filter(a => selectedTeams.includes(a.teamId))
     : absences
@@ -122,7 +121,9 @@ export default function CalendarView({
 
     if (absence.type === 'vacation') {
       // Dividir en segmentos laborables: no pintar sábados, domingos ni festivos
-      const segments = getWorkingDaySegments(absence.startDate, absence.endDate, holidayDateSet)
+      // Usamos los festivos exactos del usuario (su ciudad), no el set global
+      const userHols = userHolidayMaps.get(absence.userId) ?? new Set<string>()
+      const segments = getWorkingDaySegments(absence.startDate, absence.endDate, userHols)
       return segments.map(({ start, end }) => ({
         id: `${absence.id}-${start.getTime()}`,
         title: `${name} · ${label}`,

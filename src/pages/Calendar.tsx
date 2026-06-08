@@ -69,6 +69,24 @@ export default function CalendarPage() {
     )
   }, [holidays, appUser])
 
+  // Festivos por usuario: Map<userId, Set<dateString>>
+  // Permite a CalendarView y TeamFilter usar los festivos exactos de cada usuario (su ciudad),
+  // evitando que festivos de otras ciudades visibles afecten el render/conteo ajeno.
+  const userHolidayMaps = useMemo(() => {
+    const currentYear = new Date().getFullYear()
+    const years = [currentYear, currentYear + 1]
+    const map = new Map<string, Set<string>>()
+    for (const user of users) {
+      if (!user.city || !(user.city in LOCATIONS)) continue
+      const userCity = user.city as LocationKey
+      const userHols = buildHolidays([userCity], years)
+      map.set(user.uid, new Set(userHols.map(h => h.date)))
+    }
+    return map
+  // holidays no se usa directamente pero garantiza que rawCache esté poblado antes de buildHolidays
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [users, holidays])
+
   function toggleTeam(teamId: string) {
     setSelectedTeams(prev =>
       prev.includes(teamId) ? prev.filter(id => id !== teamId) : [...prev, teamId]
@@ -161,6 +179,7 @@ export default function CalendarPage() {
           isOnline={isOnline}
           sidebarOpen={sidebarOpen}
           onCloseSidebar={() => setSidebarOpen(false)}
+          userHolidayMaps={userHolidayMaps}
         />
 
         <main className="main-content">
@@ -188,6 +207,7 @@ export default function CalendarPage() {
             teams={teams}
             selectedTeams={selectedTeams}
             holidays={holidays}
+            userHolidayMaps={userHolidayMaps}
             onSelectSlot={handleSelectSlot}
             onSelectEvent={handleSelectEvent}
           />
