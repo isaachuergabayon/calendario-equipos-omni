@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { useAuth } from '../context/AuthContext'
+import { useAuth } from '../context/useAuth'
 import { updateUser } from '../lib/firestore'
 import { LOCATION_OPTIONS, type LocationKey } from '../lib/locations'
 

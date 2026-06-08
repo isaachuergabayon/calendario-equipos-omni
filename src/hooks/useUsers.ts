@@ -9,15 +9,16 @@ export function useUsers() {
   const [users, setUsers] = useState<AppUser[]>([])
   const [loading, setLoading] = useState(true)
 
-  async function load() {
-    const data = await getAllUsers()
-    setUsers(data)
-    setLoading(false)
+  function load() {
+    return getAllUsers().then(data => {
+      setUsers(data)
+      setLoading(false)
+    })
   }
 
   useEffect(() => {
-    load()
-    const id = setInterval(load, REFRESH_INTERVAL)
+    void load()
+    const id = setInterval(() => { void load() }, REFRESH_INTERVAL)
     return () => clearInterval(id)
   }, [])
 

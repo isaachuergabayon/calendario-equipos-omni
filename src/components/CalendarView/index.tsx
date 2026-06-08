@@ -41,6 +41,49 @@ const HOLIDAY_COLORS: Record<Holiday['type'], string> = {
   local:    '#2563eb',
 }
 
+// Divide un rango de fechas en segmentos de días laborables consecutivos,
+// saltando fines de semana y cualquier fecha del set de festivos.
+function getWorkingDaySegments(
+  startDate: string,
+  endDate: string,
+  holidaySet: Set<string>,
+): Array<{ start: Date; end: Date }> {
+  const [sy, sm, sd] = startDate.split('-').map(Number)
+  const [ey, em, ed] = endDate.split('-').map(Number)
+  const rangeStart = new Date(sy, sm - 1, sd)
+  const rangeEnd   = new Date(ey, em - 1, ed)
+
+  const segments: Array<{ start: Date; end: Date }> = []
+  let segStart: Date | null = null
+  const cur = new Date(rangeStart)
+
+  while (cur <= rangeEnd) {
+    const dow = cur.getDay()
+    const key = `${cur.getFullYear()}-${String(cur.getMonth() + 1).padStart(2, '0')}-${String(cur.getDate()).padStart(2, '0')}`
+    const isWorking = dow !== 0 && dow !== 6 && !holidaySet.has(key)
+
+    if (isWorking) {
+      if (!segStart) segStart = new Date(cur)
+    } else {
+      if (segStart) {
+        // end es exclusivo en react-big-calendar → día actual (primer no-laborable)
+        segments.push({ start: segStart, end: new Date(cur) })
+        segStart = null
+      }
+    }
+    cur.setDate(cur.getDate() + 1)
+  }
+
+  // Cerrar el último segmento abierto
+  if (segStart) {
+    const excEnd = new Date(rangeEnd)
+    excEnd.setDate(excEnd.getDate() + 1)
+    segments.push({ start: segStart, end: excEnd })
+  }
+
+  return segments
+}
+
 export default function CalendarView({
   absences,
   users,
@@ -63,30 +106,45 @@ export default function CalendarView({
     }
   }
 
+  // Set de todas las fechas festivas (para dividir eventos de vacaciones)
+  const holidayDateSet = new Set(holidayMap.keys())
+
   const filtered = selectedTeams.length > 0
     ? absences.filter(a => selectedTeams.includes(a.teamId))
     : absences
 
-  const absenceEvents: CalendarEvent[] = filtered.map(absence => {
-    const user = userMap[absence.userId]
-    const team = teamMap[absence.teamId]
+  const absenceEvents: CalendarEvent[] = filtered.flatMap(absence => {
+    const user  = userMap[absence.userId]
+    const team  = teamMap[absence.teamId]
     const label = ABSENCE_TYPE_LABELS[absence.type]
-    const name = user?.displayName ?? 'Desconocido'
+    const name  = user?.displayName ?? 'Desconocido'
+    const color = team?.color ?? user?.color ?? '#888'
+
+    if (absence.type === 'vacation') {
+      // Dividir en segmentos laborables: no pintar sábados, domingos ni festivos
+      const segments = getWorkingDaySegments(absence.startDate, absence.endDate, holidayDateSet)
+      return segments.map(({ start, end }) => ({
+        id: `${absence.id}-${start.getTime()}`,
+        title: `${name} · ${label}`,
+        start,
+        end,
+        color,
+        absenceId: absence.id,
+        userId: absence.userId,
+      }))
+    }
 
     const [sy, sm, sd] = absence.startDate.split('-').map(Number)
     const [ey, em, ed] = absence.endDate.split('-').map(Number)
-    const start = new Date(sy, sm - 1, sd)
-    const end = new Date(ey, em - 1, ed + 1)
-
-    return {
+    return [{
       id: absence.id,
       title: `${name} · ${label}`,
-      start,
-      end,
-      color: team?.color ?? user?.color ?? '#888',
+      start: new Date(sy, sm - 1, sd),
+      end:   new Date(ey, em - 1, ed + 1),
+      color,
       absenceId: absence.id,
       userId: absence.userId,
-    }
+    }]
   })
 
   const holidayEvents: CalendarEvent[] = holidays.map(h => {

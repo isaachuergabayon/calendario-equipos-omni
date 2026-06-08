@@ -6,11 +6,11 @@ export function useAbsences() {
   const [absences, setAbsences] = useState<Absence[]>([])
   const [loading, setLoading] = useState(true)
 
-  async function load() {
-    setLoading(true)
-    const data = await getAbsences()
-    setAbsences(data)
-    setLoading(false)
+  function load() {
+    return getAbsences().then(data => {
+      setAbsences(data)
+      setLoading(false)
+    })
   }
 
   useEffect(() => { load() }, [])

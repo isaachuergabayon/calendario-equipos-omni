@@ -1,24 +1,11 @@
-import { createContext, useContext, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { onAuthStateChanged, type User } from 'firebase/auth'
 import { auth } from '../lib/firebase'
 import { getOrCreateUser, updateUser } from '../lib/firestore'
 import type { AppUser } from '../types'
+import { AuthContext } from './auth-context'
 
 const HEARTBEAT_INTERVAL = 60_000 // 60 seconds
-
-interface AuthContextValue {
-  firebaseUser: User | null
-  appUser: AppUser | null
-  loading: boolean
-  refreshAppUser: () => Promise<void>
-}
-
-const AuthContext = createContext<AuthContextValue>({
-  firebaseUser: null,
-  appUser: null,
-  loading: true,
-  refreshAppUser: async () => {},
-})
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [firebaseUser, setFirebaseUser] = useState<User | null>(null)
@@ -68,8 +55,4 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       {children}
     </AuthContext.Provider>
   )
-}
-
-export function useAuth() {
-  return useContext(AuthContext)
 }

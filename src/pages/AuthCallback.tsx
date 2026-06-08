@@ -39,13 +39,13 @@ export default function AuthCallback() {
         const isFirstTime = appUser.displayName === emailPrefix
 
         navigate(isFirstTime ? '/profile?first=true' : '/')
-      } catch (err: any) {
+      } catch {
         setError('El enlace ha caducado o ya fue usado. Solicita uno nuevo.')
       }
     }
 
     finishSignIn()
-  }, [])
+  }, [navigate])
 
   if (error) {
     return (

@@ -6,11 +6,11 @@ export function useTeams() {
   const [teams, setTeams] = useState<Team[]>([])
   const [loading, setLoading] = useState(true)
 
-  async function load() {
-    setLoading(true)
-    const data = await getTeams()
-    setTeams(data.sort((a, b) => a.name.localeCompare(b.name, 'es')))
-    setLoading(false)
+  function load() {
+    return getTeams().then(data => {
+      setTeams(data.sort((a, b) => a.name.localeCompare(b.name, 'es')))
+      setLoading(false)
+    })
   }
 
   useEffect(() => { load() }, [])

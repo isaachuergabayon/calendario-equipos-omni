@@ -90,16 +90,12 @@ export function useHolidays(activeCities: LocationKey[]): UseHolidaysResult {
   const citiesKey = [...activeCities].sort().join(',')
 
   useEffect(() => {
-    if (activeCities.length === 0) {
-      setHolidays([])
-      return
-    }
+    if (activeCities.length === 0) return
 
     const currentYear = new Date().getFullYear()
     const years = [currentYear, currentYear + 1]
     const countries = [...new Set(activeCities.map(c => LOCATIONS[c].countryCode))]
 
-    setLoading(true)
     Promise.all(years.flatMap(year => countries.map(cc => fetchRaw(cc, year))))
       .then(() => {
         setHolidays(buildHolidays(activeCities, years))
@@ -112,5 +108,9 @@ export function useHolidays(activeCities: LocationKey[]): UseHolidaysResult {
       })
   }, [citiesKey]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  return { holidays, loading, error }
+  return {
+    holidays: activeCities.length === 0 ? [] : holidays,
+    loading:  activeCities.length === 0 ? false : loading,
+    error,
+  }
 }

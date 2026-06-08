@@ -23,7 +23,7 @@ export default function Login() {
       })
       window.localStorage.setItem('emailForSignIn', email)
       setSent(true)
-    } catch (err: any) {
+    } catch {
       setError('Error al enviar el enlace. Revisa el email e inténtalo de nuevo.')
     } finally {
       setLoading(false)

@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react'
 import { format } from 'date-fns'
-import { useAuth } from '../context/AuthContext'
+import { useAuth } from '../context/useAuth'
 import { useAbsences } from '../hooks/useAbsences'
 import { useTeams } from '../hooks/useTeams'
 import { useUsers } from '../hooks/useUsers'
@@ -46,7 +46,7 @@ export default function CalendarPage() {
       cities.add(appUser.city as LocationKey)
     }
     return [...cities]
-  }, [users, selectedTeams, appUser?.city])
+  }, [users, selectedTeams, appUser])
 
   const { holidays } = useHolidays(activeCities)
 
