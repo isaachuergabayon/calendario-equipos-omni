@@ -18,6 +18,7 @@ dist-ssr
 
 # Agent docs (local only)
 .aicontext
+AGENTS.md
 
 # Editor directories and files
 .vscode/*
