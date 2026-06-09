@@ -7,8 +7,7 @@ import {
   addDoc,
   updateDoc,
   deleteDoc,
-  query,
-  where,
+  deleteField,
 } from 'firebase/firestore'
 import { db } from './firebase'
 import type { AppUser, Team, Absence, AbsenceType } from '../types'
@@ -67,12 +66,6 @@ export async function getAbsences(): Promise<Absence[]> {
   return snap.docs.map(d => ({ id: d.id, ...d.data() } as Absence))
 }
 
-export async function getAbsencesByUser(userId: string): Promise<Absence[]> {
-  const q = query(collection(db, 'absences'), where('userId', '==', userId))
-  const snap = await getDocs(q)
-  return snap.docs.map(d => ({ id: d.id, ...d.data() } as Absence))
-}
-
 export async function createAbsence(data: {
   userId: string
   teamId: string
@@ -100,8 +93,8 @@ export async function updateAbsence(id: string, data: Partial<Omit<Absence, 'id'
   if (data.startDate !== undefined) update.startDate = data.startDate
   if (data.endDate !== undefined) update.endDate = data.endDate
   if (data.teamId !== undefined) update.teamId = data.teamId
-  // notes: if explicitly empty string, remove the field; otherwise set it
-  if (data.notes) update.notes = data.notes
+  // notes: si es string vacío, borrar el campo; si tiene valor, guardarlo; si es undefined, no tocar
+  if (data.notes !== undefined) update.notes = data.notes || deleteField()
   await updateDoc(doc(db, 'absences', id), update)
 }
 

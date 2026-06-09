@@ -49,6 +49,15 @@ function sanRoque(year: number): string {
   return toDateStr(d)
 }
 
+// Lunes de la Montaña (Cáceres) = lunes siguiente al primer domingo de mayo
+function lunesDeLaMontana(year: number): string {
+  const may1 = new Date(year, 4, 1)
+  const dow = may1.getDay() // 0=Dom … 6=Sáb
+  const daysToFirstSun = (7 - dow) % 7 // 0 si ya es domingo
+  const d = new Date(year, 4, 1 + daysToFirstSun + 1)
+  return toDateStr(d)
+}
+
 // ── Types ──────────────────────────────────────────────────────
 
 export type LocationKey =
@@ -142,8 +151,8 @@ export const LOCATIONS: Record<LocationKey, LocationConfig> = {
     countryCode: 'ES',
     communityCode: 'ES-AS',
     fixedLocals: [
+      { month: 9, day: 21, name: 'San Mateo (Oviedo)' },
       // TODO: Martes de Campo — date/formula pending confirmation
-      // TODO: San Mateo — date pending (possibly Sep 21)
     ],
     computedLocals: [],
   },
@@ -153,7 +162,7 @@ export const LOCATIONS: Record<LocationKey, LocationConfig> = {
     countryCode: 'ES',
     communityCode: 'ES-AN',
     fixedLocals: [
-      // TODO: San Fernando — date pending (possibly May 30)
+      { month: 5, day: 30, name: 'San Fernando (Sevilla)' },
     ],
     computedLocals: [
       year => ({ date: corpusChristi(year), name: 'Corpus Christi (Sevilla)' }),
@@ -177,9 +186,10 @@ export const LOCATIONS: Record<LocationKey, LocationConfig> = {
     communityCode: 'ES-EX',
     fixedLocals: [
       { month: 4, day: 23, name: 'San Jorge (Cáceres)' },
-      // TODO: Lunes de la Montaña (lunes siguiente al 1er domingo de mayo) — pending confirmation
     ],
-    computedLocals: [],
+    computedLocals: [
+      year => ({ date: lunesDeLaMontana(year), name: 'Lunes de la Montaña (Cáceres)' }),
+    ],
   },
 
   las_palmas: {

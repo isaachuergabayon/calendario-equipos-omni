@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { createAbsence, updateAbsence, deleteAbsence } from '../../lib/firestore'
+import { countWorkingDays } from '../../lib/dateUtils'
 import { ABSENCE_TYPE_LABELS } from '../../types'
 import type { Absence, AbsenceType } from '../../types'
 
@@ -51,23 +52,6 @@ function countHolidayDays(startDate: string, endDate: string, holidays: Set<stri
   while (cur <= end) {
     const key = `${cur.getFullYear()}-${String(cur.getMonth() + 1).padStart(2, '0')}-${String(cur.getDate()).padStart(2, '0')}`
     if (holidays.has(key)) count++
-    cur.setDate(cur.getDate() + 1)
-  }
-  return count
-}
-
-// Días laborables: excluye fines de semana y festivos
-function countWorkingDays(startDate: string, endDate: string, holidays: Set<string>): number {
-  const [sy, sm, sd] = startDate.split('-').map(Number)
-  const [ey, em, ed] = endDate.split('-').map(Number)
-  const start = new Date(sy, sm - 1, sd)
-  const end = new Date(ey, em - 1, ed)
-  let count = 0
-  const cur = new Date(start)
-  while (cur <= end) {
-    const day = cur.getDay()
-    const key = `${cur.getFullYear()}-${String(cur.getMonth() + 1).padStart(2, '0')}-${String(cur.getDate()).padStart(2, '0')}`
-    if (day !== 0 && day !== 6 && !holidays.has(key)) count++
     cur.setDate(cur.getDate() + 1)
   }
   return count
@@ -144,7 +128,7 @@ export default function AbsenceModal({
           notes: notes || undefined,
         })
       } else {
-        await updateAbsence(absence!.id, { type, startDate, endDate, notes: notes || undefined })
+        await updateAbsence(absence!.id, { type, startDate, endDate, notes: notes })
       }
       onSaved()
     } catch (err) {
