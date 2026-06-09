@@ -1,5 +1,14 @@
 # Changelog
 
+# [0.5.0](https://github.com/isaachuergabayon/calendario-equipos-omni/compare/v0.4.0...v0.5.0) (2026-06-09)
+
+
+### Features
+
+* **calendar:** filter absences by person via sidebar click ([e1cb7b2](https://github.com/isaachuergabayon/calendario-equipos-omni/commit/e1cb7b2b23cf0260a519ed785926334459e6994d))
+* **ical:** export team absences to .ics calendar file ([b5be78a](https://github.com/isaachuergabayon/calendario-equipos-omni/commit/b5be78a36f818ab1dca2905d81a6d045ed528e4e))
+* **modal:** always show working days badge when date range is selected ([d838b4b](https://github.com/isaachuergabayon/calendario-equipos-omni/commit/d838b4b9da9eeff4052715f950058447b9448556))
+
 # [0.4.0](https://github.com/isaachuergabayon/calendario-equipos-omni/compare/v0.3.0...v0.4.0) (2026-06-09)
 
 
