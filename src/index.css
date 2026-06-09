@@ -470,6 +470,27 @@ input, select, textarea { font: inherit; }
 .form-error { color: #e05c5c; font-size: 0.85rem; }
 .form-info  { color: #1d6fa4; font-size: 0.85rem; }
 
+/* ── Days badge (AbsenceModal) ────────────────────────── */
+.form-days-badge {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0;
+  background: #eff6ff;
+  border: 1.5px solid #bfdbfe;
+  border-radius: 20px;
+  padding: 0.25rem 0.75rem;
+  margin-top: 0.1rem;
+}
+.form-days-count {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #1d4ed8;
+}
+.form-days-detail {
+  font-size: 0.8rem;
+  color: #64748b;
+}
+
 /* ── Weekend warning ──────────────────────────────────── */
 .weekend-warning {
   background: #fffbeb;
@@ -1152,3 +1173,73 @@ input, select, textarea { font: inherit; }
   transition: background 0.15s, border-color 0.15s, color 0.15s;
 }
 .stats-csv-btn:hover { background: #f0f0f5; border-color: #bbb; color: #333; }
+
+/* ── Filter global row (Todos + .ics) ─────────────────── */
+.filter-global-row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 0.1rem;
+}
+.filter-global-row .filter-btn {
+  flex: 1;
+  margin-bottom: 0;
+}
+.filter-ical-btn {
+  flex-shrink: 0;
+  padding: 0.4rem 0.6rem;
+  background: none;
+  border: 1.5px solid #ddd;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  color: #666;
+  white-space: nowrap;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.filter-ical-btn:hover { background: #f0f0f5; border-color: #bbb; color: #333; }
+
+/* ── Stats — person name as button ───────────────────── */
+.stats-name--btn {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: color 0.12s;
+}
+.stats-name--btn:hover { color: #1d4ed8; }
+
+.stats-entry--selected { background: #eff6ff; border-radius: 6px; }
+.stats-entry--selected .stats-name--btn { color: #1d4ed8; font-weight: 600; }
+
+/* ── Person filter chip ───────────────────────────────── */
+.person-filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.3rem 0.5rem 0.3rem 0.75rem;
+  background: #eff6ff;
+  border: 1.5px solid #bfdbfe;
+  border-radius: 20px;
+  font-size: 0.82rem;
+  color: #1d4ed8;
+  margin-bottom: 0.5rem;
+}
+.person-filter-clear {
+  background: none;
+  border: none;
+  font-size: 1rem;
+  line-height: 1;
+  color: #64748b;
+  cursor: pointer;
+  padding: 0 0.1rem;
+  border-radius: 50%;
+  transition: color 0.12s, background 0.12s;
+}
+.person-filter-clear:hover { color: #1d4ed8; background: #dbeafe; }

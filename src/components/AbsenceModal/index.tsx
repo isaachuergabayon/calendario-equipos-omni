@@ -233,17 +233,29 @@ export default function AbsenceModal({
               />
             </label>
 
-            {/* Vacaciones: info de días laborables cuando hay no-laborables en el rango */}
-            {type === 'vacation' && rangeValid && hasNonWorkingDays && workingDays! > 0 && (
-              <p className="form-info">
-                {workingDays} día{workingDays !== 1 ? 's' : ''} laborable{workingDays !== 1 ? 's' : ''} de {total} en total
-                {weekendDays > 0 && holidayDays > 0
-                  ? ` (${weekendDays} fin${weekendDays !== 1 ? 'es' : ''} de semana y ${holidayDays} festivo${holidayDays !== 1 ? 's' : ''} excluidos)`
-                  : weekendDays > 0
-                  ? ` (${weekendDays} día${weekendDays !== 1 ? 's' : ''} de fin de semana excluido${weekendDays !== 1 ? 's' : ''})`
-                  : ` (${holidayDays} festivo${holidayDays !== 1 ? 's' : ''} excluido${holidayDays !== 1 ? 's' : ''})`
-                }
-              </p>
+            {/* Contador de días: siempre visible cuando el rango es válido */}
+            {rangeValid && type === 'vacation' && workingDays !== null && workingDays > 0 && (
+              <div className="form-days-badge">
+                <span className="form-days-count">
+                  {workingDays} día{workingDays !== 1 ? 's' : ''} laborable{workingDays !== 1 ? 's' : ''}
+                </span>
+                {hasNonWorkingDays && (
+                  <span className="form-days-detail">
+                    {' '}de {total}
+                    {weekendDays > 0 && holidayDays > 0
+                      ? ` · ${weekendDays} fds y ${holidayDays} festivos excluidos`
+                      : weekendDays > 0
+                      ? ` · ${weekendDays} fds excluidos`
+                      : ` · ${holidayDays} festivo${holidayDays !== 1 ? 's' : ''} excluido${holidayDays !== 1 ? 's' : ''}`
+                    }
+                  </span>
+                )}
+              </div>
+            )}
+            {rangeValid && type !== 'vacation' && total > 0 && (
+              <div className="form-days-badge">
+                <span className="form-days-count">{total} día{total !== 1 ? 's' : ''}</span>
+              </div>
             )}
 
             {/* Vacaciones: bloqueo cuando no hay ningún día laborable */}
