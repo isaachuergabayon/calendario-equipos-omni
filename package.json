@@ -8,8 +8,8 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "release": "GH_TOKEN=$ITX_GITHUB_PAT release-it",
-    "release:dry": "GH_TOKEN=$ITX_GITHUB_PAT release-it --dry-run"
+    "release": "GITHUB_TOKEN=$ITX_GITHUB_PAT release-it",
+    "release:dry": "GITHUB_TOKEN=$ITX_GITHUB_PAT release-it --dry-run"
   },
   "dependencies": {
     "date-fns": "^4.4.0",
