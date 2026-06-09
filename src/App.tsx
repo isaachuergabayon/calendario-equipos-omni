@@ -1,12 +1,14 @@
+import { lazy, Suspense } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
 import { useAuth } from './context/useAuth'
 import ErrorBoundary from './components/ErrorBoundary'
-import Login from './pages/Login'
-import AuthCallback from './pages/AuthCallback'
-import CalendarPage from './pages/Calendar'
-import Teams from './pages/Teams'
-import Profile from './pages/Profile'
+
+const Login        = lazy(() => import('./pages/Login'))
+const AuthCallback = lazy(() => import('./pages/AuthCallback'))
+const CalendarPage = lazy(() => import('./pages/Calendar'))
+const Teams        = lazy(() => import('./pages/Teams'))
+const Profile      = lazy(() => import('./pages/Profile'))
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
   const { firebaseUser, loading } = useAuth()
@@ -20,35 +22,37 @@ export default function App() {
     <ErrorBoundary>
       <AuthProvider>
         <BrowserRouter basename="/calendario-equipos-omni">
-          <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route path="/auth-callback" element={<AuthCallback />} />
-            <Route
-              path="/"
-              element={
-                <PrivateRoute>
-                  <CalendarPage />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/teams"
-              element={
-                <PrivateRoute>
-                  <Teams />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/profile"
-              element={
-                <PrivateRoute>
-                  <Profile />
-                </PrivateRoute>
-              }
-            />
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
+          <Suspense fallback={<div className="loading">Cargando…</div>}>
+            <Routes>
+              <Route path="/login" element={<Login />} />
+              <Route path="/auth-callback" element={<AuthCallback />} />
+              <Route
+                path="/"
+                element={
+                  <PrivateRoute>
+                    <CalendarPage />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/teams"
+                element={
+                  <PrivateRoute>
+                    <Teams />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/profile"
+                element={
+                  <PrivateRoute>
+                    <Profile />
+                  </PrivateRoute>
+                }
+              />
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </Suspense>
         </BrowserRouter>
       </AuthProvider>
     </ErrorBoundary>
