@@ -2,7 +2,7 @@ import { Calendar, dateFnsLocalizer } from 'react-big-calendar'
 import { format, parse, startOfWeek, getDay } from 'date-fns'
 import { es } from 'date-fns/locale'
 import 'react-big-calendar/lib/css/react-big-calendar.css'
-import type { Absence, AppUser, Team, Holiday } from '../../types'
+import type { Absence, AbsenceType, AppUser, Team, Holiday } from '../../types'
 import { ABSENCE_TYPE_LABELS } from '../../types'
 
 const localizer = dateFnsLocalizer({
@@ -23,6 +23,9 @@ interface CalendarEvent {
   userId: string
   isHoliday?: boolean
   holidayType?: Holiday['type']
+  notes?: string
+  origStart?: string
+  origEnd?: string
 }
 
 interface Props {
@@ -30,6 +33,7 @@ interface Props {
   users: AppUser[]
   teams: Team[]
   selectedTeams: string[]
+  selectedTypes: Set<AbsenceType>
   holidays: Holiday[]
   userHolidayMaps: Map<string, Set<string>>
   onSelectSlot: (start: Date, end: Date) => void
@@ -40,6 +44,23 @@ const HOLIDAY_COLORS: Record<Holiday['type'], string> = {
   national: '#dc2626',
   regional: '#d97706',
   local:    '#2563eb',
+}
+
+// Tooltip custom: muestra nombre, fechas originales y notas de la ausencia
+const EventWrapper = ({ event }: { event: CalendarEvent }) => {
+  const tooltip = [
+    event.title,
+    event.origStart ? `${event.origStart} → ${event.origEnd}` : null,
+    event.notes ?? null,
+  ].filter(Boolean).join('\n')
+  return (
+    <span
+      title={tooltip}
+      style={{ display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
+    >
+      {event.title}
+    </span>
+  )
 }
 
 // Divide un rango de fechas en segmentos de días laborables consecutivos,
@@ -90,6 +111,7 @@ export default function CalendarView({
   users,
   teams,
   selectedTeams,
+  selectedTypes,
   holidays,
   userHolidayMaps,
   onSelectSlot,
@@ -112,7 +134,11 @@ export default function CalendarView({
     ? absences.filter(a => selectedTeams.includes(a.teamId))
     : absences
 
-  const absenceEvents: CalendarEvent[] = filtered.flatMap(absence => {
+  const byType = selectedTypes.size > 0
+    ? filtered.filter(a => selectedTypes.has(a.type))
+    : filtered
+
+  const absenceEvents: CalendarEvent[] = byType.flatMap(absence => {
     const user  = userMap[absence.userId]
     const team  = teamMap[absence.teamId]
     const label = ABSENCE_TYPE_LABELS[absence.type]
@@ -132,6 +158,9 @@ export default function CalendarView({
         color,
         absenceId: absence.id,
         userId: absence.userId,
+        origStart: absence.startDate,
+        origEnd: absence.endDate,
+        notes: absence.notes,
       }))
     }
 
@@ -145,6 +174,9 @@ export default function CalendarView({
       color,
       absenceId: absence.id,
       userId: absence.userId,
+      origStart: absence.startDate,
+      origEnd: absence.endDate,
+      notes: absence.notes,
     }]
   })
 
@@ -180,6 +212,8 @@ export default function CalendarView({
           if (ev.isHoliday) return
           onSelectEvent(ev.absenceId, ev.userId)
         }}
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        components={{ event: EventWrapper as any }}
         dayPropGetter={date => {
           const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
           const type = holidayMap.get(key)

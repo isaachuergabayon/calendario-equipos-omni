@@ -9,7 +9,8 @@ import { LOCATIONS, type LocationKey } from '../lib/locations'
 import CalendarView from '../components/CalendarView'
 import TeamFilter from '../components/TeamFilter'
 import AbsenceModal from '../components/AbsenceModal'
-import type { Absence } from '../types'
+import type { Absence, AbsenceType } from '../types'
+import { ABSENCE_TYPE_LABELS } from '../types'
 import { signOut } from 'firebase/auth'
 import { auth } from '../lib/firebase'
 import { useNavigate } from 'react-router-dom'
@@ -22,6 +23,7 @@ export default function CalendarPage() {
   const navigate = useNavigate()
 
   const [selectedTeams, setSelectedTeams] = useState<string[]>([])
+  const [selectedTypes, setSelectedTypes] = useState<Set<AbsenceType>>(new Set())
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [modal, setModal] = useState<{
     absence: Absence | null
@@ -91,6 +93,14 @@ export default function CalendarPage() {
     setSelectedTeams(prev =>
       prev.includes(teamId) ? prev.filter(id => id !== teamId) : [...prev, teamId]
     )
+  }
+
+  function toggleType(type: AbsenceType) {
+    setSelectedTypes(prev => {
+      const next = new Set(prev)
+      next.has(type) ? next.delete(type) : next.add(type)
+      return next
+    })
   }
 
   function handleSelectSlot(start: Date, end: Date) {
@@ -175,6 +185,7 @@ export default function CalendarPage() {
           users={users}
           absences={absences}
           selectedTeams={selectedTeams}
+          currentUserId={appUser?.uid ?? ''}
           onToggleTeam={toggleTeam}
           onShowAll={() => setSelectedTeams([])}
           isOnline={isOnline}
@@ -202,11 +213,29 @@ export default function CalendarPage() {
               </button>
             </div>
           )}
+          {/* Filtro por tipo de ausencia */}
+          <div className="type-filter">
+            {(Object.entries(ABSENCE_TYPE_LABELS) as [AbsenceType, string][]).map(([type, label]) => (
+              <button
+                key={type}
+                className={`type-filter-btn type-filter-btn--${type}${selectedTypes.has(type) ? ' active' : ''}`}
+                onClick={() => toggleType(type)}
+              >
+                {label}
+              </button>
+            ))}
+            {selectedTypes.size > 0 && (
+              <button className="type-filter-clear" onClick={() => setSelectedTypes(new Set())}>
+                Todos
+              </button>
+            )}
+          </div>
           <CalendarView
             absences={absences}
             users={users}
             teams={teams}
             selectedTeams={selectedTeams}
+            selectedTypes={selectedTypes}
             holidays={holidays}
             userHolidayMaps={userHolidayMaps}
             onSelectSlot={handleSelectSlot}
