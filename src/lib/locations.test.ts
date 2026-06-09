@@ -74,11 +74,57 @@ describe('LOCATIONS registry', () => {
     })
   })
 
+  describe('Gijón', () => {
+    it('computes San Pedro when Jun 29 is Sunday (2025) → Mon Jun 30', () => {
+      const result = LOCATIONS.gijon.computedLocals[1](2025)
+      expect(result.date).toBe('2025-06-30')
+      expect(result.name).toMatch(/San Pedro/i)
+    })
+
+    it('computes San Pedro when Jun 29 is Saturday (2024) → Mon Jul 1', () => {
+      const result = LOCATIONS.gijon.computedLocals[1](2024)
+      expect(result.date).toBe('2024-07-01')
+    })
+  })
+
   describe('Oviedo', () => {
-    it('has San Mateo on September 21', () => {
-      expect(LOCATIONS.oviedo.fixedLocals).toContainEqual(
-        expect.objectContaining({ month: 9, day: 21 }),
-      )
+    it('computes San Mateo when Sep 21 is Sunday (2025) → Mon Sep 22', () => {
+      const result = LOCATIONS.oviedo.computedLocals[0](2025)
+      expect(result.date).toBe('2025-09-22')
+      expect(result.name).toMatch(/San Mateo/i)
+    })
+
+    it('computes San Mateo when Sep 21 is not Sunday (2024) → no shift', () => {
+      const result = LOCATIONS.oviedo.computedLocals[0](2024)
+      expect(result.date).toBe('2024-09-21')
+    })
+
+    it('computes Martes de Campo for 2025 (Easter Apr 20 + 51 = Jun 10)', () => {
+      const result = LOCATIONS.oviedo.computedLocals[1](2025)
+      expect(result.date).toBe('2025-06-10')
+      expect(result.name).toMatch(/Campo/i)
+    })
+  })
+
+  describe('Badajoz', () => {
+    it('computes Martes de Carnaval for 2025 (Easter Apr 20 - 47 = Mar 4)', () => {
+      const result = LOCATIONS.badajoz.computedLocals[0](2025)
+      expect(result.date).toBe('2025-03-04')
+      expect(result.name).toMatch(/Carnaval/i)
+    })
+  })
+
+  describe('Murcia', () => {
+    it('computes Bando de la Huerta for 2025 (Easter Apr 20 + 2 = Apr 22)', () => {
+      const result = LOCATIONS.murcia.computedLocals[0](2025)
+      expect(result.date).toBe('2025-04-22')
+      expect(result.name).toMatch(/Huerta/i)
+    })
+
+    it('computes Entierro de la Sardina for 2025 (Easter Apr 20 + 13 = May 3)', () => {
+      const result = LOCATIONS.murcia.computedLocals[1](2025)
+      expect(result.date).toBe('2025-05-03')
+      expect(result.name).toMatch(/Sardina/i)
     })
   })
 

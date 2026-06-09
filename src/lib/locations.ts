@@ -58,6 +58,23 @@ function lunesDeLaMontana(year: number): string {
   return toDateStr(d)
 }
 
+// San Pedro (Gijón) = 29 jun, traslado al lunes si cae en sábado o domingo
+function sanPedroGijon(year: number): string {
+  const d = new Date(year, 5, 29) // Jun 29
+  const dow = d.getDay()
+  if (dow === 6) d.setDate(d.getDate() + 2)  // Sábado → Lunes
+  else if (dow === 0) d.setDate(d.getDate() + 1) // Domingo → Lunes
+  return toDateStr(d)
+}
+
+// San Mateo (Oviedo) = 21 sep, traslado al lunes si cae en domingo
+function sanMateoOviedo(year: number): string {
+  const d = new Date(year, 8, 21) // Sep 21
+  const dow = d.getDay()
+  if (dow === 0) d.setDate(22) // Domingo → Lunes
+  return toDateStr(d)
+}
+
 // ── Types ──────────────────────────────────────────────────────
 
 export type LocationKey =
@@ -138,11 +155,10 @@ export const LOCATIONS: Record<LocationKey, LocationConfig> = {
     label: 'Gijón',
     countryCode: 'ES',
     communityCode: 'ES-AS',
-    fixedLocals: [
-      // TODO: Begoña — date pending confirmation
-    ],
+    fixedLocals: [],
     computedLocals: [
       year => ({ date: martesCarnival(year), name: 'Antroxu (Gijón)' }),
+      year => ({ date: sanPedroGijon(year),  name: 'San Pedro (Gijón)' }),
     ],
   },
 
@@ -150,11 +166,11 @@ export const LOCATIONS: Record<LocationKey, LocationConfig> = {
     label: 'Oviedo',
     countryCode: 'ES',
     communityCode: 'ES-AS',
-    fixedLocals: [
-      { month: 9, day: 21, name: 'San Mateo (Oviedo)' },
-      // TODO: Martes de Campo — date/formula pending confirmation
+    fixedLocals: [],
+    computedLocals: [
+      year => ({ date: sanMateoOviedo(year),       name: 'San Mateo (Oviedo)' }),
+      year => ({ date: easterOffset(year, 51),     name: 'Martes de Campo (Oviedo)' }),
     ],
-    computedLocals: [],
   },
 
   sevilla: {
@@ -175,9 +191,10 @@ export const LOCATIONS: Record<LocationKey, LocationConfig> = {
     communityCode: 'ES-EX',
     fixedLocals: [
       { month: 6, day: 24, name: 'San Juan (Badajoz)' },
-      // TODO: 2nd local municipal — pending confirmation
     ],
-    computedLocals: [],
+    computedLocals: [
+      year => ({ date: martesCarnival(year), name: 'Martes de Carnaval (Badajoz)' }),
+    ],
   },
 
   caceres: {
@@ -219,11 +236,9 @@ export const LOCATIONS: Record<LocationKey, LocationConfig> = {
     label: 'Murcia',
     countryCode: 'ES',
     communityCode: 'ES-MC',
-    fixedLocals: [
-      // TODO: locales municipales adicionales — pending confirmation
-    ],
+    fixedLocals: [],
     computedLocals: [
-      year => ({ date: easterOffset(year, 9),  name: 'Martes de la Feria de Primavera (Murcia)' }),
+      year => ({ date: easterOffset(year, 2),  name: 'Bando de la Huerta (Murcia)' }),
       year => ({ date: easterOffset(year, 13), name: 'Entierro de la Sardina (Murcia)' }),
     ],
   },
