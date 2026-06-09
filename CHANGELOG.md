@@ -1,5 +1,7 @@
 # Changelog
 
+## [0.5.1](https://github.com/isaachuergabayon/calendario-equipos-omni/compare/v0.5.0...v0.5.1) (2026-06-09)
+
 # [0.5.0](https://github.com/isaachuergabayon/calendario-equipos-omni/compare/v0.4.0...v0.5.0) (2026-06-09)
 
 
