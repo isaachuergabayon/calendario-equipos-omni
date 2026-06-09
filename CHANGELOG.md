@@ -1,5 +1,18 @@
 # Changelog
 
+# [0.3.0](https://github.com/isaachuergabayon/calendario-equipos-omni/compare/v0.2.0...v0.3.0) (2026-06-09)
+
+
+### Bug Fixes
+
+* use GITHUB_TOKEN instead of GH_TOKEN for release-it GitHub Releases ([408ba67](https://github.com/isaachuergabayon/calendario-equipos-omni/commit/408ba677eb1e7b8562d0812db36138ca2d46c225))
+
+
+### Features
+
+* ErrorBoundary, TeamFilter upgrades, useAbsences cutoff, firestore fixes ([b555c96](https://github.com/isaachuergabayon/calendario-equipos-omni/commit/b555c96664e726aaaef8410854154a4c4702fcea))
+* type filter bar, event tooltips, and unit tests ([f5487e8](https://github.com/isaachuergabayon/calendario-equipos-omni/commit/f5487e840f73bd8f614bd245873e4ca9d211478d))
+
 # [0.2.0](https://github.com/isaachuergabayon/calendario-equipos-omni/compare/v0.1.0...v0.2.0) (2026-06-09)
 
 
