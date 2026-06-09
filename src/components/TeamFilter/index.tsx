@@ -9,8 +9,11 @@ interface Props {
   absences: Absence[]
   selectedTeams: string[]
   currentUserId: string
+  selectedUserId: string | null
   onToggleTeam: (teamId: string) => void
+  onToggleUser: (uid: string) => void
   onShowAll: () => void
+  onExportIcal: () => void
   isOnline: (user: AppUser) => boolean
   sidebarOpen: boolean
   onCloseSidebar: () => void
@@ -78,7 +81,8 @@ function exportTeamCsv(
 
 export default function TeamFilter({
   teams, users, absences, selectedTeams, currentUserId,
-  onToggleTeam, onShowAll, isOnline, sidebarOpen, onCloseSidebar,
+  selectedUserId, onToggleTeam, onToggleUser, onShowAll, onExportIcal,
+  isOnline, sidebarOpen, onCloseSidebar,
   userHolidayMaps,
 }: Props) {
   const allSelected = selectedTeams.length === 0
@@ -183,12 +187,21 @@ export default function TeamFilter({
           </div>
         </div>
 
-        <button
-          className={`filter-btn ${allSelected ? 'active' : ''}`}
-          onClick={onShowAll}
-        >
-          <span className="filter-name">Todos</span>
-        </button>
+        <div className="filter-global-row">
+          <button
+            className={`filter-btn ${allSelected ? 'active' : ''}`}
+            onClick={onShowAll}
+          >
+            <span className="filter-name">Todos</span>
+          </button>
+          <button
+            className="filter-ical-btn"
+            onClick={onExportIcal}
+            title="Descargar calendar (.ics)"
+          >
+            ↓ .ics
+          </button>
+        </div>
 
         {teams.map(team => {
           const isActive = selectedTeams.includes(team.id)
@@ -230,13 +243,17 @@ export default function TeamFilter({
                           .sort((a, b) => a.startDate.localeCompare(b.startDate))
 
                         return (
-                          <div key={user.uid} className={`stats-entry${isSelf ? ' stats-entry--self' : ''}`}>
+                          <div key={user.uid} className={`stats-entry${isSelf ? ' stats-entry--self' : ''}${selectedUserId === user.uid ? ' stats-entry--selected' : ''}`}>
                             <div className="stats-row">
-                              <span className="stats-name">
+                              <button
+                                className="stats-name stats-name--btn"
+                                onClick={() => onToggleUser(user.uid)}
+                                title={selectedUserId === user.uid ? 'Quitar filtro de persona' : 'Filtrar por esta persona'}
+                              >
                                 {online && <span className="stats-online-dot" title="En línea" />}
                                 {user.displayName}
                                 {isSelf && <span className="stats-self-badge">tú</span>}
-                              </span>
+                              </button>
                               <div className="stats-row-right">
                                 <span className={`stats-days ${days === 0 ? 'zero' : ''}`}>
                                   {days} {days === 1 ? 'día' : 'días'}

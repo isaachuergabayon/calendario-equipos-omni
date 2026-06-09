@@ -6,6 +6,7 @@ import { useTeams } from '../hooks/useTeams'
 import { useUsers } from '../hooks/useUsers'
 import { useHolidays, buildHolidays } from '../hooks/useHolidays'
 import { LOCATIONS, type LocationKey } from '../lib/locations'
+import { generateIcal, downloadIcal } from '../lib/icalExport'
 import CalendarView from '../components/CalendarView'
 import TeamFilter from '../components/TeamFilter'
 import AbsenceModal from '../components/AbsenceModal'
@@ -24,6 +25,7 @@ export default function CalendarPage() {
 
   const [selectedTeams, setSelectedTeams] = useState<string[]>([])
   const [selectedTypes, setSelectedTypes] = useState<Set<AbsenceType>>(new Set())
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null)
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [modal, setModal] = useState<{
     absence: Absence | null
@@ -101,6 +103,18 @@ export default function CalendarPage() {
       next.has(type) ? next.delete(type) : next.add(type)
       return next
     })
+  }
+
+  function toggleUser(uid: string) {
+    setSelectedUserId(prev => (prev === uid ? null : uid))
+  }
+
+  function handleExportIcal() {
+    const visibleAbsences = selectedTeams.length > 0
+      ? absences.filter(a => selectedTeams.includes(a.teamId))
+      : absences
+    const ical = generateIcal(visibleAbsences, users, teams)
+    downloadIcal(ical)
   }
 
   function handleSelectSlot(start: Date, end: Date) {
@@ -186,8 +200,11 @@ export default function CalendarPage() {
           absences={absences}
           selectedTeams={selectedTeams}
           currentUserId={appUser?.uid ?? ''}
+          selectedUserId={selectedUserId}
           onToggleTeam={toggleTeam}
+          onToggleUser={toggleUser}
           onShowAll={() => setSelectedTeams([])}
+          onExportIcal={handleExportIcal}
           isOnline={isOnline}
           sidebarOpen={sidebarOpen}
           onCloseSidebar={() => setSidebarOpen(false)}
@@ -230,12 +247,28 @@ export default function CalendarPage() {
               </button>
             )}
           </div>
+          {/* Chip de persona seleccionada */}
+          {selectedUserId && (
+            <div className="person-filter-chip">
+              <span>
+                Vista de: <strong>{users.find(u => u.uid === selectedUserId)?.displayName ?? selectedUserId}</strong>
+              </span>
+              <button
+                className="person-filter-clear"
+                onClick={() => setSelectedUserId(null)}
+                title="Quitar filtro de persona"
+              >
+                ×
+              </button>
+            </div>
+          )}
           <CalendarView
             absences={absences}
             users={users}
             teams={teams}
             selectedTeams={selectedTeams}
             selectedTypes={selectedTypes}
+            selectedUserId={selectedUserId}
             holidays={holidays}
             userHolidayMaps={userHolidayMaps}
             onSelectSlot={handleSelectSlot}
