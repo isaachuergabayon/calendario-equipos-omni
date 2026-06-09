@@ -8,6 +8,8 @@ import {
   updateDoc,
   deleteDoc,
   deleteField,
+  query,
+  where,
 } from 'firebase/firestore'
 import { db } from './firebase'
 import type { AppUser, Team, Absence, AbsenceType } from '../types'
@@ -61,7 +63,12 @@ export async function deleteTeam(id: string): Promise<void> {
 
 // ── Absences ───────────────────────────────────────────
 
-export async function getAbsences(): Promise<Absence[]> {
+export async function getAbsences(since?: string): Promise<Absence[]> {
+  if (since) {
+    const q = query(collection(db, 'absences'), where('endDate', '>=', since))
+    const snap = await getDocs(q)
+    return snap.docs.map(d => ({ id: d.id, ...d.data() } as Absence))
+  }
   const snap = await getDocs(collection(db, 'absences'))
   return snap.docs.map(d => ({ id: d.id, ...d.data() } as Absence))
 }

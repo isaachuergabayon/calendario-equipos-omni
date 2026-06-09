@@ -1,5 +1,5 @@
 {
-  "name": "calendario-temp",
+  "name": "calendario-equipos-omni",
   "private": true,
   "version": "0.2.0",
   "type": "module",
@@ -7,6 +7,8 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "preview": "vite preview",
     "release": "GITHUB_TOKEN=$ITX_GITHUB_PAT release-it",
     "release:dry": "GITHUB_TOKEN=$ITX_GITHUB_PAT release-it --dry-run"
@@ -34,6 +36,7 @@
     "release-it": "^20.2.0",
     "typescript": "~6.0.2",
     "typescript-eslint": "^8.59.2",
-    "vite": "^5.4.21"
+    "vite": "^5.4.21",
+    "vitest": "^4.1.8"
   }
 }
