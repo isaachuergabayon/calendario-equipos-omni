@@ -172,7 +172,7 @@ export default function CalendarView({
         localizer={localizer}
         events={events}
         defaultView="month"
-        views={['month', 'week']}
+        views={['month', 'week', 'day']}
         culture="es"
         selectable
         onSelectSlot={({ start, end }) => onSelectSlot(start, end)}

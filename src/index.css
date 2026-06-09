@@ -885,7 +885,130 @@ input, select, textarea { font: inherit; }
 
 .city-reminder-link:hover { color: #92400e; }
 
-/* ── Festivos ─────────────────────────────────────────────────── */
+/* ── Team filter — fiscal year navigation ─────────────── */
+.fiscal-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.1rem;
+}
+
+.fiscal-nav-btn {
+  background: none;
+  border: none;
+  padding: 0 0.2rem;
+  font-size: 0.9rem;
+  color: #ccc;
+  line-height: 1;
+  border-radius: 3px;
+  transition: color 0.15s;
+}
+.fiscal-nav-btn:hover:not(:disabled) { color: #555; }
+.fiscal-nav-btn:disabled { opacity: 0.25; cursor: not-allowed; }
+
+/* ── Hoy fuera ────────────────────────────────────────── */
+.today-section {
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #eee;
+}
+
+.today-title {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #c07040;
+  margin-bottom: 0.4rem;
+}
+
+.today-user {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.15rem 0.25rem;
+  font-size: 0.82rem;
+  color: #444;
+  gap: 0.4rem;
+}
+
+.today-name {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.today-type {
+  font-size: 0.68rem;
+  color: #999;
+  white-space: nowrap;
+}
+
+/* ── Stats — detalle de ausencias por persona ─────────── */
+.stats-entry {
+  display: flex;
+  flex-direction: column;
+}
+
+.stats-row-right {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  flex-shrink: 0;
+}
+
+.stats-expand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  background: none;
+  border: none;
+  color: #ccc;
+  border-radius: 3px;
+  padding: 0;
+  flex-shrink: 0;
+  transition: color 0.15s, transform 0.2s;
+}
+.stats-expand:hover { color: #666; }
+.stats-expand.open { transform: rotate(180deg); color: #666; }
+
+.stats-absence-list {
+  margin: 0.1rem 0 0.25rem 0.3rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.stats-absence-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.72rem;
+  color: #666;
+  padding: 0.1rem 0.2rem;
+  border-radius: 4px;
+}
+.stats-absence-item:hover { background: #f0f0f8; }
+
+.stats-absence-type {
+  flex: 1;
+  color: #555;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-right: 0.3rem;
+}
+
+.stats-absence-dates {
+  color: #aaa;
+  font-size: 0.67rem;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Festivos — week view day view ────────────────────── */
 
 /* Fondo del día en el calendario según tipo de festivo */
 .rbc-day-national .rbc-day-bg,
