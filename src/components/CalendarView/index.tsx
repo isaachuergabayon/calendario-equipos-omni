@@ -34,6 +34,7 @@ interface Props {
   teams: Team[]
   selectedTeams: string[]
   selectedTypes: Set<AbsenceType>
+  selectedUserId: string | null
   holidays: Holiday[]
   userHolidayMaps: Map<string, Set<string>>
   onSelectSlot: (start: Date, end: Date) => void
@@ -112,6 +113,7 @@ export default function CalendarView({
   teams,
   selectedTeams,
   selectedTypes,
+  selectedUserId,
   holidays,
   userHolidayMaps,
   onSelectSlot,
@@ -138,7 +140,11 @@ export default function CalendarView({
     ? filtered.filter(a => selectedTypes.has(a.type))
     : filtered
 
-  const absenceEvents: CalendarEvent[] = byType.flatMap(absence => {
+  const byUser = selectedUserId
+    ? byType.filter(a => a.userId === selectedUserId)
+    : byType
+
+  const absenceEvents: CalendarEvent[] = byUser.flatMap(absence => {
     const user  = userMap[absence.userId]
     const team  = teamMap[absence.teamId]
     const label = ABSENCE_TYPE_LABELS[absence.type]
