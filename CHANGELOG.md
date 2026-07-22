@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.2](https://github.com/isaachuergabayon/calendario-equipos-omni/compare/v0.5.1...v0.5.2) (2026-07-22)
+
+
+### Bug Fixes
+
+* **calendar:** refresh sidebar absences and add toledo holidays ([430b1ac](https://github.com/isaachuergabayon/calendario-equipos-omni/commit/430b1ac75ed05ee59505223109821bd11df5054f))
+
 ## [0.5.1](https://github.com/isaachuergabayon/calendario-equipos-omni/compare/v0.5.0...v0.5.1) (2026-06-09)
 
 # [0.5.0](https://github.com/isaachuergabayon/calendario-equipos-omni/compare/v0.4.0...v0.5.0) (2026-06-09)
