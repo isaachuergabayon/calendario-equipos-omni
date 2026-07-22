@@ -82,6 +82,7 @@ export type LocationKey =
   | 'vigo'
   | 'barcelona'
   | 'madrid'
+  | 'toledo'
   | 'gijon'
   | 'oviedo'
   | 'sevilla'
@@ -147,6 +148,17 @@ export const LOCATIONS: Record<LocationKey, LocationConfig> = {
     fixedLocals: [
       { month: 5, day: 15, name: 'San Isidro (Madrid)' },
       { month: 11, day: 9,  name: 'La Almudena (Madrid)' },
+    ],
+    computedLocals: [],
+  },
+
+  toledo: {
+    label: 'Toledo',
+    countryCode: 'ES',
+    communityCode: 'ES-CM',
+    fixedLocals: [
+      { month: 1, day: 23, name: 'San Ildefonso (Toledo)' },
+      { month: 11, day: 26, name: 'Ciudad Patrimonio (Toledo)' },
     ],
     computedLocals: [],
   },

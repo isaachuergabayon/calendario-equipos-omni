@@ -43,13 +43,14 @@ function countDays(startDate: string, endDate: string): number {
 
 function exportTeamCsv(
   teamName: string,
+  teamId: string,
   members: AppUser[],
   absences: Absence[],
   fiscal: { start: string; end: string; label: string },
   userHolidayMaps: Map<string, Set<string>>,
 ) {
   const fiscalAbsences = absences.filter(
-    a => a.startDate <= fiscal.end && a.endDate >= fiscal.start,
+    a => a.teamId === teamId && a.startDate <= fiscal.end && a.endDate >= fiscal.start,
   )
   const rows: string[][] = [['Nombre', 'Tipo', 'Desde', 'Hasta', 'Días']]
   for (const user of members) {
@@ -109,7 +110,13 @@ export default function TeamFilter({
     setExpandedUser(prev => prev === uid ? null : uid)
   }
 
-  const fiscalAbsences = absences.filter(a => a.startDate <= fiscal.end && a.endDate >= fiscal.start)
+  const visibleAbsences = selectedTeams.length > 0
+    ? absences.filter(a => selectedTeams.includes(a.teamId))
+    : absences
+
+  const fiscalAbsences = visibleAbsences.filter(
+    a => a.startDate <= fiscal.end && a.endDate >= fiscal.start,
+  )
 
   function daysForUser(userId: string): number {
     return fiscalAbsences
@@ -287,11 +294,11 @@ export default function TeamFilter({
                           </div>
                         )
                       })}
-                      <button
-                        className="stats-csv-btn"
-                        onClick={() => exportTeamCsv(team.name, members, absences, fiscal, userHolidayMaps)}
-                        title="Exportar a CSV"
-                      >
+                        <button
+                          className="stats-csv-btn"
+                          onClick={() => exportTeamCsv(team.name, team.id, members, absences, fiscal, userHolidayMaps)}
+                          title="Exportar a CSV"
+                        >
                         ↓ CSV
                       </button>
                     </>

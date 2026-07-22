@@ -5,6 +5,7 @@ describe('LOCATIONS registry', () => {
   it('contains the expected Spanish cities', () => {
     const keys = Object.keys(LOCATIONS)
     expect(keys).toContain('madrid')
+    expect(keys).toContain('toledo')
     expect(keys).toContain('sevilla')
     expect(keys).toContain('caceres')
     expect(keys).toContain('oviedo')
@@ -30,6 +31,24 @@ describe('LOCATIONS registry', () => {
     it('has La Almudena on Nov 9', () => {
       expect(LOCATIONS.madrid.fixedLocals).toContainEqual(
         expect.objectContaining({ month: 11, day: 9 }),
+      )
+    })
+  })
+
+  describe('Toledo', () => {
+    it('has the correct regional code', () => {
+      expect(LOCATIONS.toledo.communityCode).toBe('ES-CM')
+    })
+
+    it('has San Ildefonso on Jan 23', () => {
+      expect(LOCATIONS.toledo.fixedLocals).toContainEqual(
+        expect.objectContaining({ month: 1, day: 23 }),
+      )
+    })
+
+    it('has Ciudad Patrimonio on Nov 26', () => {
+      expect(LOCATIONS.toledo.fixedLocals).toContainEqual(
+        expect.objectContaining({ month: 11, day: 26 }),
       )
     })
   })
